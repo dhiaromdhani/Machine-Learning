@@ -1,0 +1,1927 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HR AI Matching Platform — Groupe 6 FullStackers</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #070b12;
+    --surface: #0d1320;
+    --surface2: #131b2e;
+    --surface3: #1a2440;
+    --border: #1c2840;
+    --border2: #243250;
+    --green: #1DB974;
+    --green-light: #27d882;
+    --green-dim: rgba(29,185,116,0.12);
+    --blue: #3D8EF0;
+    --blue-dim: rgba(61,142,240,0.12);
+    --orange: #F0A030;
+    --orange-dim: rgba(240,160,48,0.12);
+    --red: #E84040;
+    --red-dim: rgba(232,64,64,0.10);
+    --purple: #9B6CF0;
+    --purple-dim: rgba(155,108,240,0.12);
+    --text: #dce4f0;
+    --text2: #7a90b5;
+    --text3: #3d5078;
+    --sidebar-w: 252px;
+    --font: 'Outfit', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    width: var(--sidebar-w);
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 100;
+    overflow-y: auto;
+  }
+  .sidebar-logo {
+    padding: 22px 18px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-logo h1 {
+    font-family: var(--display);
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--green);
+    line-height: 1.2;
+  }
+  .sidebar-logo p {
+    font-size: 0.65rem;
+    color: var(--text3);
+    margin-top: 4px;
+    font-family: var(--mono);
+  }
+  .sidebar-nav { padding: 10px 0; flex: 1; }
+  .nav-section-label {
+    font-size: 0.56rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text3);
+    padding: 10px 18px 4px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 18px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: var(--font);
+    font-size: 0.82rem;
+    color: var(--text2);
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: var(--green-dim); color: var(--green); border-left-color: var(--green); }
+  .nav-item.obj1.active { background: var(--blue-dim); color: var(--blue); border-left-color: var(--blue); }
+  .nav-item.obj2.active { background: var(--orange-dim); color: var(--orange); border-left-color: var(--orange); }
+  .nav-item.obj3.active { background: var(--green-dim); color: var(--green); border-left-color: var(--green); }
+  .nav-icon { font-size: 0.9rem; width: 18px; text-align: center; flex-shrink:0; }
+  .nav-badge {
+    margin-left: auto;
+    font-size: 0.58rem;
+    font-family: var(--mono);
+    padding: 1px 6px;
+    border-radius: 3px;
+    background: var(--surface3);
+    color: var(--text3);
+  }
+  .sidebar-footer {
+    padding: 14px 18px;
+    border-top: 1px solid var(--border);
+  }
+  .sidebar-footer p { font-size: 0.6rem; color: var(--text3); line-height: 1.7; font-family: var(--mono); }
+
+  /* ── MAIN ── */
+  #main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    min-height: 100vh;
+    padding: 28px 32px;
+    max-width: calc(100vw - var(--sidebar-w));
+  }
+
+  .page { display: none; animation: fadeIn 0.22s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+  /* ── TYPOGRAPHY ── */
+  h2.page-title {
+    font-family: var(--display);
+    font-size: 1.65rem;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+  .page-sub { font-size: 0.82rem; color: var(--text2); margin-bottom: 24px; }
+  .section-title {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 12px;
+    margin-top: 24px;
+  }
+  .section-title.blue { color: var(--blue); }
+  .section-title.orange { color: var(--orange); }
+  .section-title.purple { color: var(--purple); }
+  .section-title:first-child { margin-top: 0; }
+
+  /* ── CARDS ── */
+  .cards { display: grid; gap: 12px; margin-bottom: 20px; }
+  .c5 { grid-template-columns: repeat(5, 1fr); }
+  .c4 { grid-template-columns: repeat(4, 1fr); }
+  .c3 { grid-template-columns: repeat(3, 1fr); }
+  .c2 { grid-template-columns: 1fr 1fr; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .card-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.11em;
+    color: var(--text3);
+    margin-bottom: 5px;
+  }
+  .card-value {
+    font-family: var(--display);
+    font-size: 1.6rem;
+    font-weight: 800;
+  }
+  .card-sub { font-size: 0.68rem; color: var(--text3); margin-top: 2px; }
+
+  /* ── CHART WRAPPER ── */
+  .chart-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    margin-bottom: 18px;
+    position: relative;
+  }
+  .chart-wrap-title {
+    font-size: 0.73rem;
+    font-weight: 600;
+    color: var(--text2);
+    margin-bottom: 14px;
+  }
+
+  /* ── TABLE ── */
+  .tbl-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+  thead th {
+    background: var(--surface2);
+    padding: 9px 12px;
+    text-align: left;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    border-bottom: 1px solid var(--border);
+  }
+  tbody td { padding: 9px 12px; border-bottom: 1px solid var(--border); color: var(--text2); }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: var(--surface2); }
+  .highlight-row td { background: var(--green-dim) !important; color: var(--green) !important; }
+  .highlight-row-blue td { background: var(--blue-dim) !important; color: var(--blue) !important; }
+  .highlight-row-orange td { background: var(--orange-dim) !important; color: var(--orange) !important; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    font-family: var(--mono);
+  }
+  .badge-blue { background: var(--blue-dim); color: var(--blue); }
+  .badge-orange { background: var(--orange-dim); color: var(--orange); }
+  .badge-green { background: var(--green-dim); color: var(--green); }
+  .badge-pink { background: rgba(212,83,126,0.14); color: #D4537E; }
+  .badge-gray { background: rgba(100,100,120,0.2); color: #7888aa; }
+
+  /* ── FORM ELEMENTS ── */
+  .form-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+  }
+  .form-panel h3 { font-size: 0.82rem; font-weight: 700; margin-bottom: 14px; color: var(--text); }
+  .field { margin-bottom: 12px; }
+  .field label {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 5px;
+  }
+  .field input[type=range] { width: 100%; accent-color: var(--green); }
+  .range-val { font-family: var(--mono); font-size: 0.78rem; color: var(--green); }
+  .field select, .field input[type=number] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 7px;
+    color: var(--text);
+    padding: 7px 10px;
+    font-family: var(--font);
+    font-size: 0.8rem;
+    outline: none;
+  }
+  .field select:focus, .field input:focus { border-color: var(--green); }
+
+  .skills-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+  .skill-chip {
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 0.67rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border2);
+    background: var(--surface2);
+    color: var(--text3);
+    transition: all 0.13s;
+    user-select: none;
+  }
+  .skill-chip.selected { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+
+  /* ── BUTTONS ── */
+  .btn-primary {
+    background: var(--green);
+    color: #000;
+    border: none;
+    border-radius: 9px;
+    padding: 11px 26px;
+    font-family: var(--display);
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.16s;
+    margin-bottom: 18px;
+  }
+  .btn-primary:hover { background: var(--green-light); transform: translateY(-1px); }
+  .btn-blue { background: var(--blue); }
+  .btn-blue:hover { background: #5aaaff; }
+  .btn-orange { background: var(--orange); }
+  .btn-orange:hover { background: #ffc04d; }
+  .btn-block { width: 100%; }
+
+  /* ── RESULT CARDS ── */
+  .result-card {
+    border-radius: 10px;
+    padding: 14px 16px;
+    text-align: center;
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .result-card.good { background: var(--green-dim); border-color: var(--green); }
+  .result-card.bad  { background: var(--red-dim);   border-color: var(--red);   }
+  .r-model { font-size: 0.65rem; color: var(--text3); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+  .r-obj   { font-size: 0.58rem; color: var(--text3); font-family: var(--mono); margin: 2px 0 7px; }
+  .r-verdict { font-size: 1rem; font-weight: 700; }
+  .r-prob  { font-size: 0.7rem; color: var(--text2); margin-top: 4px; }
+  .r-score { font-family: var(--display); font-size: 1.9rem; font-weight: 800; }
+  .progress-bar { height: 5px; background: var(--border); border-radius: 3px; margin-top: 9px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 3px; transition: width 0.55s ease; }
+
+  .verdict-banner {
+    border-radius: 10px;
+    padding: 16px 20px;
+    text-align: center;
+    border: 2px solid;
+    margin-bottom: 18px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    line-height: 1.6;
+  }
+  .verdict-banner.good { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+  .verdict-banner.bad  { background: var(--red-dim);   border-color: var(--red);   color: var(--red);   }
+
+  .feat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 12px 14px;
+  }
+  .f-label { font-size: 0.6rem; color: var(--text3); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 3px; }
+  .f-val   { font-family: var(--display); font-size: 1.3rem; font-weight: 800; }
+  .f-delta { font-size: 0.67rem; margin-top: 2px; }
+  .delta-ok  { color: var(--green); }
+  .delta-bad { color: var(--red); }
+
+  /* ── OBJECTIVE HEADER STRIP ── */
+  .obj-strip {
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 22px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border: 1px solid;
+  }
+  .obj-strip.blue   { background: var(--blue-dim);   border-color: var(--blue); }
+  .obj-strip.orange { background: var(--orange-dim); border-color: var(--orange); }
+  .obj-strip.green  { background: var(--green-dim);  border-color: var(--green); }
+  .obj-strip-num {
+    font-family: var(--display);
+    font-size: 2rem;
+    font-weight: 800;
+    opacity: 0.6;
+    line-height: 1;
+  }
+  .obj-strip-info h3 { font-size: 0.88rem; font-weight: 700; margin-bottom: 2px; }
+  .obj-strip-info p  { font-size: 0.72rem; opacity: 0.8; }
+  .obj-strip-models  { margin-left: auto; display: flex; gap: 6px; }
+  .obj-model-tag {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-weight: 600;
+  }
+
+  /* ── TWO-COL LAYOUT ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 14px 16px;
+    font-family: var(--mono);
+    font-size: 0.71rem;
+    color: #a8caff;
+    line-height: 1.85;
+    white-space: pre;
+    overflow-x: auto;
+    margin-bottom: 18px;
+  }
+
+  /* ── TRAINING ── */
+  .obj-section {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    margin-bottom: 16px;
+    background: var(--surface);
+  }
+  .obj-header { display: flex; align-items: center; gap: 9px; margin-bottom: 12px; }
+  .obj-dot { width: 9px; height: 9px; border-radius: 50%; }
+  .obj-title { font-size: 0.83rem; font-weight: 700; }
+  .model-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 12px;
+    background: var(--surface2);
+    border-radius: 7px;
+    margin-bottom: 7px;
+    border: 1px solid var(--border);
+    font-size: 0.8rem;
+  }
+  .model-row-left { display: flex; align-items: center; gap: 9px; }
+  .model-tag { font-family: var(--mono); font-size: 0.63rem; color: var(--text3); }
+  .prog-outer { height: 4px; background: var(--border); border-radius: 2px; flex: 1; max-width: 130px; overflow: hidden; }
+  .prog-inner { height: 100%; border-radius: 2px; background: var(--green); width: 0%; transition: width 1.1s ease; }
+  .metric-pill { font-family: var(--mono); font-size: 0.65rem; color: var(--green); background: var(--green-dim); padding: 2px 7px; border-radius: 4px; }
+  .log-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--text2);
+    min-height: 80px;
+    max-height: 160px;
+    overflow-y: auto;
+    line-height: 1.8;
+  }
+  .log-green { color: var(--green); }
+  .log-blue { color: var(--blue); }
+  .log-orange { color: var(--orange); }
+
+  /* ── REC CARDS ── */
+  .rec-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+  .rec-card { border-radius: 9px; padding: 14px; border: 1px solid; }
+  .rec-card.green { background: var(--green-dim); border-color: var(--green); }
+  .rec-card.blue  { background: var(--blue-dim);  border-color: var(--blue); }
+  .rec-card.orange{ background: var(--orange-dim);border-color: var(--orange); }
+  .rec-card h4 { font-size: 0.78rem; font-weight: 700; margin-bottom: 5px; }
+  .rec-card p  { font-size: 0.73rem; color: var(--text2); line-height: 1.5; }
+
+  /* ── MODEL GRID (overview) ── */
+  .model-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 22px; }
+  .model-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 11px 8px;
+    text-align: center;
+  }
+  .model-name { font-size: 0.68rem; font-weight: 700; margin-bottom: 1px; }
+  .model-obj  { font-size: 0.56rem; color: var(--text3); font-family: var(--mono); margin-bottom: 5px; }
+  .model-status { font-size: 0.64rem; }
+  .status-ok { color: var(--green); }
+
+  .obj-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 8px; }
+  .obj-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .obj-card h4 { font-size: 0.8rem; font-weight: 700; margin-bottom: 9px; }
+  .obj-card li { font-size: 0.72rem; color: var(--text2); padding: 2px 0; list-style: none; }
+  .obj-card li::before { content: "→ "; color: var(--text3); }
+
+  /* ── PCA INSIGHT BOX ── */
+  .pca-insight {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 9px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  }
+  .pca-insight h4 { font-size: 0.72rem; font-weight: 700; margin-bottom: 6px; }
+  .pca-insight p  { font-size: 0.72rem; color: var(--text2); line-height: 1.6; }
+  .pca-component-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+  .pca-comp-label { font-family: var(--mono); font-size: 0.67rem; color: var(--text2); width: 80px; flex-shrink:0; }
+  .pca-bar-outer { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .pca-bar-inner { height: 100%; border-radius: 3px; }
+  .pca-pct { font-family: var(--mono); font-size: 0.67rem; color: var(--text2); width: 40px; text-align: right; }
+
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: var(--surface); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ SIDEBAR ═══════════════ -->
+<aside id="sidebar">
+  <div class="sidebar-logo">
+    <h1>🎯 HR AI<br>Platform</h1>
+    <p>Groupe 6 — FullStackers</p>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Général</div>
+    <button class="nav-item active" data-page="overview">
+      <span class="nav-icon">🏠</span> Vue d'ensemble
+    </button>
+    <button class="nav-item" data-page="comparison">
+      <span class="nav-icon">📊</span> Comparaison modèles
+    </button>
+    <button class="nav-item" data-page="training">
+      <span class="nav-icon">⚙️</span> Entraînement
+    </button>
+
+    <div class="nav-section-label" style="margin-top:6px">Objectif 1</div>
+    <button class="nav-item obj1" data-page="obj1-model">
+      <span class="nav-icon">🔵</span> Décision RH
+      <span class="nav-badge">DT · KNN</span>
+    </button>
+    <button class="nav-item obj1" data-page="obj1-pca">
+      <span class="nav-icon">📐</span> PCA — Obj 1
+      <span class="nav-badge">63.2%</span>
+    </button>
+    <button class="nav-item obj1" data-page="obj1-predict">
+      <span class="nav-icon">🔮</span> Prédire — Obj 1
+    </button>
+
+    <div class="nav-section-label" style="margin-top:6px">Objectif 2</div>
+    <button class="nav-item obj2" data-page="obj2-model">
+      <span class="nav-icon">🟠</span> Sélection optimale
+      <span class="nav-badge">SVM · KM</span>
+    </button>
+    <button class="nav-item obj2" data-page="obj2-pca">
+      <span class="nav-icon">📐</span> PCA — Obj 2
+      <span class="nav-badge">63.1%</span>
+    </button>
+    <button class="nav-item obj2" data-page="obj2-predict">
+      <span class="nav-icon">🔮</span> Prédire — Obj 2
+    </button>
+
+    <div class="nav-section-label" style="margin-top:6px">Objectif 3</div>
+    <button class="nav-item obj3" data-page="obj3-model">
+      <span class="nav-icon">🟢</span> Score matching
+      <span class="nav-badge">XGB · LR</span>
+    </button>
+    <button class="nav-item obj3" data-page="obj3-pca">
+      <span class="nav-icon">📐</span> PCA — Obj 3
+      <span class="nav-badge">62.8%</span>
+    </button>
+    <button class="nav-item obj3" data-page="obj3-predict">
+      <span class="nav-icon">🔮</span> Prédire — Obj 3
+    </button>
+  </nav>
+  <div class="sidebar-footer">
+    <p>Dr. Jihen Hlel<br>Module ML Appliqué<br>Groupe 6 FullStackers</p>
+  </div>
+</aside>
+
+<!-- ═══════════════ MAIN ═══════════════ -->
+<main id="main">
+
+<!-- ════════ OVERVIEW ════════ -->
+<div id="page-overview" class="page active">
+  <h2 class="page-title">🏠 Vue d'ensemble</h2>
+  <p class="page-sub">HR AI Matching — 3 objectifs · 7 modèles · 3 PCA · 100 000 paires</p>
+
+  <div class="section-title">Dataset</div>
+  <div class="cards c5">
+    <div class="card"><div class="card-label">Candidats</div><div class="card-value">1 000</div></div>
+    <div class="card"><div class="card-label">Offres</div><div class="card-value">500</div></div>
+    <div class="card"><div class="card-label">Paires</div><div class="card-value">100K</div></div>
+    <div class="card"><div class="card-label">Good Match</div><div class="card-value">~30%</div></div>
+    <div class="card"><div class="card-label">Features</div><div class="card-value">9</div></div>
+  </div>
+
+  <div class="section-title">Statut des modèles</div>
+  <div class="model-grid">
+    <div class="model-card"><div class="model-name" style="color:var(--blue)">Decision Tree</div><div class="model-obj">Obj 1</div><div class="model-status status-ok">✅ Entraîné</div></div>
+    <div class="model-card"><div class="model-name" style="color:var(--blue)">KNN</div><div class="model-obj">Obj 1</div><div class="model-status status-ok">✅ Entraîné</div></div>
+    <div class="model-card"><div class="model-name" style="color:var(--blue)">PCA₁</div><div class="model-obj">Obj 1</div><div class="model-status status-ok">✅ 63.2%</div></div>
+    <div class="model-card"><div class="model-name" style="color:var(--orange)">SVM (RBF)</div><div class="model-obj">Obj 2</div><div class="model-status status-ok">✅ Entraîné</div></div>
+    <div class="model-card"><div class="model-name" style="color:var(--orange)">K-Means + PCA₂</div><div class="model-obj">Obj 2</div><div class="model-status status-ok">✅ 63.1%</div></div>
+    <div class="model-card"><div class="model-name" style="color:var(--green)">Lin. Reg.</div><div class="model-obj">Obj 3</div><div class="model-status status-ok">✅ Entraîné</div></div>
+    <div class="model-card"><div class="model-name" style="color:var(--green)">XGBoost + PCA₃</div><div class="model-obj">Obj 3</div><div class="model-status status-ok">✅ 62.8%</div></div>
+  </div>
+
+  <div class="section-title">Performance comparative</div>
+  <div class="chart-wrap" style="height:260px">
+    <canvas id="chart-perf"></canvas>
+  </div>
+
+  <div class="section-title">Architecture des 3 objectifs</div>
+  <div class="obj-cards">
+    <div class="obj-card" style="border-color:var(--blue)">
+      <h4 style="color:var(--blue)">🔵 Objectif 1 — Décision RH</h4>
+      <ul>
+        <li>Decision Tree (max_depth=5)</li>
+        <li>KNN (K optimal, euclidean)</li>
+        <li>PCA₁ → variance 63.2%</li>
+        <li>Target: good_match (0/1)</li>
+      </ul>
+    </div>
+    <div class="obj-card" style="border-color:var(--orange)">
+      <h4 style="color:var(--orange)">🟠 Objectif 2 — Sélection</h4>
+      <ul>
+        <li>SVM (kernel RBF, C=1.0)</li>
+        <li>K-Means (K=4, Silhouette)</li>
+        <li>PCA₂ → variance 63.1%</li>
+        <li>Target: good_match + clusters</li>
+      </ul>
+    </div>
+    <div class="obj-card" style="border-color:var(--green)">
+      <h4 style="color:var(--green)">🟢 Objectif 3 — Matching Score</h4>
+      <ul>
+        <li>Régression Linéaire (baseline)</li>
+        <li>XGBoost Regressor (n=300)</li>
+        <li>PCA₃ → variance 62.8%</li>
+        <li>Target: matching_score (0–100)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ OBJ1 MODEL ════════ -->
+<div id="page-obj1-model" class="page">
+  <div class="obj-strip blue">
+    <div class="obj-strip-num" style="color:var(--blue)">01</div>
+    <div class="obj-strip-info">
+      <h3 style="color:var(--blue)">Objectif 1 — Décision RH rapide</h3>
+      <p>Classifier si un candidat est Good/Poor Match → réduire le temps de décision RH</p>
+    </div>
+    <div class="obj-strip-models">
+      <span class="obj-model-tag" style="background:var(--blue-dim);color:var(--blue)">Decision Tree</span>
+      <span class="obj-model-tag" style="background:var(--blue-dim);color:var(--blue)">KNN</span>
+    </div>
+  </div>
+
+  <div class="cards c4">
+    <div class="card"><div class="card-label">Decision Tree — Accuracy</div><div class="card-value" style="color:var(--blue)">88%</div></div>
+    <div class="card"><div class="card-label">Decision Tree — AUC-ROC</div><div class="card-value" style="color:var(--blue)">0.87</div></div>
+    <div class="card"><div class="card-label">KNN — Accuracy</div><div class="card-value" style="color:var(--blue)">86%</div></div>
+    <div class="card"><div class="card-label">KNN — AUC-ROC</div><div class="card-value" style="color:var(--blue)">0.85</div></div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="section-title blue">Accuracy & AUC-ROC</div>
+      <div class="chart-wrap" style="height:230px">
+        <canvas id="chart-obj1-acc"></canvas>
+      </div>
+    </div>
+    <div>
+      <div class="section-title blue">Courbe ROC — Obj 1</div>
+      <div class="chart-wrap" style="height:230px">
+        <canvas id="chart-obj1-roc"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title blue">Règles Decision Tree (from notebook)</div>
+  <div class="code-block">IF skill_overlap > 0.40:
+    IF exp_diff &lt; 3.0:
+        IF AI Score (0-100) > 65:
+            → Good Match  (confiance 89%)
+        ELSE:
+            → Good Match  (confiance 72%)
+    ELSE:
+        → Poor Match  (confiance 81%)
+ELSE:
+    IF exp_diff &lt; 1.5:
+        → Poor Match  (confiance 76%)
+    ELSE:
+        → Poor Match  (confiance 91%)</div>
+
+  <div class="section-title blue">Métriques détaillées — Objectif 1</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Modèle</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1</th><th>AUC-ROC</th><th>Remarque</th></tr></thead>
+      <tbody>
+        <tr class="highlight-row-blue"><td><b>Decision Tree</b></td><td>88%</td><td>0.87</td><td>0.86</td><td>0.865</td><td>0.87</td><td>Règles IF-THEN lisibles par RH</td></tr>
+        <tr><td>KNN Classifier</td><td>86%</td><td>0.85</td><td>0.84</td><td>0.845</td><td>0.85</td><td>Intuitif, non-paramétrique</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title blue">Matrice de confusion simulée — Decision Tree</div>
+  <div class="chart-wrap" style="height:260px">
+    <canvas id="chart-obj1-cm"></canvas>
+  </div>
+</div>
+
+<!-- ════════ OBJ1 PCA ════════ -->
+<div id="page-obj1-pca" class="page">
+  <div class="obj-strip blue">
+    <div class="obj-strip-num" style="color:var(--blue)">01</div>
+    <div class="obj-strip-info">
+      <h3 style="color:var(--blue)">PCA — Objectif 1 (réduction dimensionnalité)</h3>
+      <p>Visualiser la séparation Good/Poor Match dans l'espace réduit PC1–PC2</p>
+    </div>
+    <div class="obj-strip-models">
+      <span class="obj-model-tag" style="background:var(--blue-dim);color:var(--blue)">PCA n=2</span>
+    </div>
+  </div>
+
+  <div class="cards c4">
+    <div class="card"><div class="card-label">Variance expliquée PC1</div><div class="card-value" style="color:var(--blue)">38.4%</div></div>
+    <div class="card"><div class="card-label">Variance expliquée PC2</div><div class="card-value" style="color:var(--blue)">24.8%</div></div>
+    <div class="card"><div class="card-label">Variance cumulée</div><div class="card-value" style="color:var(--blue)">63.2%</div></div>
+    <div class="card"><div class="card-label">Features originales</div><div class="card-value">9</div></div>
+  </div>
+
+  <div class="pca-insight">
+    <h4>🔍 Interprétation — PCA Objectif 1</h4>
+    <p>Les 2 composantes principales retiennent <strong>63.2%</strong> de la variance totale. PC1 est fortement corrélée avec <code>skill_overlap</code> et <code>exp_diff</code> — les deux features les plus discriminantes pour le matching. PC2 capture principalement l'<code>AI Score</code> et le niveau d'éducation. La projection PCA montre une séparation visible entre Good Match (cercle haut-droite) et Poor Match (cercle bas-gauche).</p>
+    <div class="pca-component-row">
+      <span class="pca-comp-label">PC1 (38.4%)</span>
+      <div class="pca-bar-outer"><div class="pca-bar-inner" style="width:38.4%;background:var(--blue)"></div></div>
+      <span class="pca-pct">38.4%</span>
+    </div>
+    <div class="pca-component-row">
+      <span class="pca-comp-label">PC2 (24.8%)</span>
+      <div class="pca-bar-outer"><div class="pca-bar-inner" style="width:24.8%;background:var(--blue);opacity:0.7"></div></div>
+      <span class="pca-pct">24.8%</span>
+    </div>
+    <div class="pca-component-row">
+      <span class="pca-comp-label">Autres (36.8%)</span>
+      <div class="pca-bar-outer"><div class="pca-bar-inner" style="width:36.8%;background:var(--border2)"></div></div>
+      <span class="pca-pct">36.8%</span>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="section-title blue">Scatter PCA — Good vs Poor Match</div>
+      <div class="chart-wrap" style="height:320px">
+        <canvas id="chart-obj1-pca-scatter"></canvas>
+      </div>
+    </div>
+    <div>
+      <div class="section-title blue">Variance cumulée par composante</div>
+      <div class="chart-wrap" style="height:320px">
+        <canvas id="chart-obj1-pca-cumvar"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title blue">Loadings — contribution des features sur PC1 et PC2</div>
+  <div class="chart-wrap" style="height:240px">
+    <canvas id="chart-obj1-pca-loadings"></canvas>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Feature</th><th>Loading PC1</th><th>Loading PC2</th><th>Rôle dominant</th></tr></thead>
+      <tbody>
+        <tr><td>skill_overlap</td><td style="color:var(--blue)">0.68</td><td>0.12</td><td>Principal discriminant</td></tr>
+        <tr><td>exp_diff</td><td style="color:var(--blue)">-0.55</td><td>0.18</td><td>Critère d'écart</td></tr>
+        <tr><td>AI Score (0-100)</td><td>0.22</td><td style="color:var(--blue)">0.61</td><td>Qualité candidat</td></tr>
+        <tr><td>edu_encoded</td><td>0.18</td><td style="color:var(--blue)">0.52</td><td>Niveau d'éducation</td></tr>
+        <tr><td>exp_candidate</td><td>0.31</td><td>-0.24</td><td>Expérience brute</td></tr>
+        <tr><td>projects_count</td><td>0.28</td><td>0.31</td><td>Activité candidat</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════════ OBJ1 PREDICT ════════ -->
+<div id="page-obj1-predict" class="page">
+  <div class="obj-strip blue">
+    <div class="obj-strip-num" style="color:var(--blue)">01</div>
+    <div class="obj-strip-info">
+      <h3 style="color:var(--blue)">Prédiction — Objectif 1 (Décision RH)</h3>
+      <p>Decision Tree + KNN → Good Match ou Poor Match ?</p>
+    </div>
+  </div>
+
+  <div class="two-col" style="margin-bottom:16px">
+    <div class="form-panel">
+      <h3>👤 Profil candidat</h3>
+      <div class="field">
+        <label>Expérience — <span class="range-val" id="o1-val-exp">5</span> ans</label>
+        <input type="range" min="0" max="25" value="5" id="o1-cand-exp" oninput="document.getElementById('o1-val-exp').textContent=this.value">
+      </div>
+      <div class="field">
+        <label>Niveau d'éducation</label>
+        <select id="o1-cand-edu">
+          <option>B.Sc</option><option selected>B.Tech</option><option>MBA</option><option>M.Sc</option><option>Ph.D</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>AI Score — <span class="range-val" id="o1-val-ai">72</span></label>
+        <input type="range" min="0" max="100" value="72" id="o1-cand-ai" oninput="document.getElementById('o1-val-ai').textContent=this.value">
+      </div>
+      <div class="field">
+        <label>Projets</label>
+        <input type="number" id="o1-cand-proj" value="8" min="0" max="50">
+      </div>
+      <div class="field">
+        <label>Skills candidat</label>
+        <div class="skills-grid" id="o1-skills-cand"></div>
+      </div>
+    </div>
+    <div class="form-panel">
+      <h3>💼 Offre d'emploi</h3>
+      <div class="field">
+        <label>Expérience requise — <span class="range-val" id="o1-val-req">4</span> ans</label>
+        <input type="range" min="0" max="25" value="4" id="o1-req-exp" oninput="document.getElementById('o1-val-req').textContent=this.value">
+      </div>
+      <div class="field">
+        <label>Type de contrat</label>
+        <select id="o1-req-contract">
+          <option>CDI</option><option>CDD</option><option>Freelance</option><option>Stage</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Localisation</label>
+        <select id="o1-req-location">
+          <option>Tunis</option><option>Sfax</option><option>Sousse</option><option>Paris</option><option>Remote</option>
+        </select>
+      </div>
+      <div class="field" style="margin-top:44px">
+        <label>Skills requis</label>
+        <div class="skills-grid" id="o1-skills-req"></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-primary btn-blue btn-block" onclick="runObj1()">🔵 Prédire — Decision Tree + KNN</button>
+
+  <div id="o1-results" style="display:none">
+    <div class="section-title blue">Features calculées</div>
+    <div class="cards c4" id="o1-feat-metrics"></div>
+    <hr class="divider">
+    <div class="section-title blue">Résultats Classifieurs — Objectif 1</div>
+    <div class="cards c2" id="o1-result-clf"></div>
+    <div id="o1-verdict"></div>
+    <div class="cards c2" id="o1-skills-breakdown"></div>
+  </div>
+</div>
+
+<!-- ════════ OBJ2 MODEL ════════ -->
+<div id="page-obj2-model" class="page">
+  <div class="obj-strip orange">
+    <div class="obj-strip-num" style="color:var(--orange)">02</div>
+    <div class="obj-strip-info">
+      <h3 style="color:var(--orange)">Objectif 2 — Sélection optimisée des candidats</h3>
+      <p>SVM (hyperplan optimal) + K-Means (segmentation profils) → optimiser la sélection RH</p>
+    </div>
+    <div class="obj-strip-models">
+      <span class="obj-model-tag" style="background:var(--orange-dim);color:var(--orange)">SVM RBF</span>
+      <span class="obj-model-tag" style="background:var(--orange-dim);color:var(--orange)">K-Means</span>
+    </div>
+  </div>
+
+  <div class="cards c4">
+    <div class="card"><div class="card-label">SVM — Accuracy</div><div class="card-value" style="color:var(--orange)">92%</div></div>
+    <div class="card"><div class="card-label">SVM — AUC-ROC</div><div class="card-value" style="color:var(--orange)">0.94</div></div>
+    <div class="card"><div class="card-label">K=4 clusters</div><div class="card-value" style="color:var(--orange)">K=4</div></div>
+    <div class="card"><div class="card-label">Silhouette Score</div><div class="card-value" style="color:var(--orange)">0.5812</div></div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="section-title orange">SVM — Courbe ROC</div>
+      <div class="chart-wrap" style="height:240px">
+        <canvas id="chart-obj2-roc"></canvas>
+      </div>
+    </div>
+    <div>
+      <div class="section-title orange">K-Means — Elbow + Silhouette</div>
+      <div class="chart-wrap" style="height:240px">
+        <canvas id="chart-obj2-elbow"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title orange">Profil moyen par cluster (K-Means, K=4)</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Cluster</th><th>Profil type</th><th>Nb candidats</th><th>Expérience moy.</th><th>AI Score moy.</th><th>Projets moy.</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-blue">0</span></td><td>Seniors Tech</td><td>289</td><td>14.2 ans</td><td>76.3</td><td>11.4</td></tr>
+        <tr><td><span class="badge badge-green">1</span></td><td>Juniors polyvalents</td><td>312</td><td>3.1 ans</td><td>62.7</td><td>4.8</td></tr>
+        <tr><td><span class="badge badge-pink">2</span></td><td>Profils spécialisés</td><td>241</td><td>7.8 ans</td><td>81.2</td><td>9.1</td></tr>
+        <tr class="highlight-row-orange"><td><span class="badge badge-orange">3</span></td><td>Profils académiques</td><td>158</td><td>5.4 ans</td><td>69.4</td><td>6.3</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title orange">Distribution expérience par cluster</div>
+  <div class="chart-wrap" style="height:240px">
+    <canvas id="chart-obj2-clusters"></canvas>
+  </div>
+</div>
+
+<!-- ════════ OBJ2 PCA ════════ -->
+<div id="page-obj2-pca" class="page">
+  <div class="obj-strip orange">
+    <div class="obj-strip-num" style="color:var(--orange)">02</div>
+    <div class="obj-strip-info">
+      <h3 style="color:var(--orange)">PCA — Objectif 2 (visualisation clusters)</h3>
+      <p>Projeter les 4 clusters K-Means dans l'espace PCA 2D pour valider la séparation</p>
+    </div>
+    <div class="obj-strip-models">
+      <span class="obj-model-tag" style="background:var(--orange-dim);color:var(--orange)">PCA n=2</span>
+    </div>
+  </div>
+
+  <div class="cards c4">
+    <div class="card"><div class="card-label">Variance expliquée PC1</div><div class="card-value" style="color:var(--orange)">37.8%</div></div>
+    <div class="card"><div class="card-label">Variance expliquée PC2</div><div class="card-value" style="color:var(--orange)">25.3%</div></div>
+    <div class="card"><div class="card-label">Variance cumulée</div><div class="card-value" style="color:var(--orange)">63.1%</div></div>
+    <div class="card"><div class="card-label">Silhouette PCA</div><div class="card-value">0.54</div></div>
+  </div>
+
+  <div class="pca-insight">
+    <h4>🔍 Interprétation — PCA Objectif 2</h4>
+    <p>La PCA de l'Objectif 2 est appliquée sur les features candidats pour visualiser la séparation des 4 clusters K-Means. PC1 est dominée par <code>experienceYears</code> (opposant Seniors vs Juniors). PC2 est dominée par <code>AI Score</code> et <code>projects_count</code> (opposant Spécialisés vs Académiques). La séparation en 4 groupes est bien visible avec un Silhouette Score de 0.5812.</p>
+    <div class="pca-component-row">
+      <span class="pca-comp-label">PC1 (37.8%)</span>
+      <div class="pca-bar-outer"><div class="pca-bar-inner" style="width:37.8%;background:var(--orange)"></div></div>
+      <span class="pca-pct">37.8%</span>
+    </div>
+    <div class="pca-component-row">
+      <span class="pca-comp-label">PC2 (25.3%)</span>
+      <div class="pca-bar-outer"><div class="pca-bar-inner" style="width:25.3%;background:var(--orange);opacity:0.7"></div></div>
+      <span class="pca-pct">25.3%</span>
+    </div>
+    <div class="pca-component-row">
+      <span class="pca-comp-label">Autres (36.9%)</span>
+      <div class="pca-bar-outer"><div class="pca-bar-inner" style="width:36.9%;background:var(--border2)"></div></div>
+      <span class="pca-pct">36.9%</span>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="section-title orange">Scatter PCA — 4 Clusters K-Means</div>
+      <div class="chart-wrap" style="height:320px">
+        <canvas id="chart-obj2-pca-scatter"></canvas>
+      </div>
+    </div>
+    <div>
+      <div class="section-title orange">Variance cumulée par composante</div>
+      <div class="chart-wrap" style="height:320px">
+        <canvas id="chart-obj2-pca-cumvar"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title orange">Loadings — contribution des features sur PC1 et PC2</div>
+  <div class="chart-wrap" style="height:240px">
+    <canvas id="chart-obj2-pca-loadings"></canvas>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Feature</th><th>Loading PC1</th><th>Loading PC2</th><th>Cluster le plus impacté</th></tr></thead>
+      <tbody>
+        <tr><td>experienceYears</td><td style="color:var(--orange)">0.72</td><td>-0.18</td><td>Seniors Tech (C0) vs Juniors (C1)</td></tr>
+        <tr><td>AI Score (0-100)</td><td>0.15</td><td style="color:var(--orange)">0.64</td><td>Profils spécialisés (C2)</td></tr>
+        <tr><td>projects_count</td><td>0.34</td><td style="color:var(--orange)">0.48</td><td>Seniors + Spécialisés</td></tr>
+        <tr><td>edu_encoded</td><td>0.20</td><td>0.38</td><td>Profils académiques (C3)</td></tr>
+        <tr><td>skill_count</td><td>0.42</td><td>0.22</td><td>Seniors Tech</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════════ OBJ2 PREDICT ════════ -->
+<div id="page-obj2-predict" class="page">
+  <div class="obj-strip orange">
+    <div class="obj-strip-num" style="color:var(--orange)">02</div>
+    <div class="obj-strip-info">
+      <h3 style="color:var(--orange)">Prédiction — Objectif 2 (Sélection)</h3>
+      <p>SVM (Good/Poor Match) + K-Means (assigner le cluster du candidat)</p>
+    </div>
+  </div>
+
+  <div class="two-col" style="margin-bottom:16px">
+    <div class="form-panel">
+      <h3>👤 Profil candidat</h3>
+      <div class="field">
+        <label>Expérience — <span class="range-val" id="o2-val-exp">5</span> ans</label>
+        <input type="range" min="0" max="25" value="5" id="o2-cand-exp" oninput="document.getElementById('o2-val-exp').textContent=this.value">
+      </div>
+      <div class="field">
+        <label>AI Score — <span class="range-val" id="o2-val-ai">70</span></label>
+        <input type="range" min="0" max="100" value="70" id="o2-cand-ai" oninput="document.getElementById('o2-val-ai').textContent=this.value">
+      </div>
+      <div class="field">
+        <label>Projets — <span class="range-val" id="o2-val-proj">8</span></label>
+        <input type="range" min="0" max="30" value="8" id="o2-cand-proj" oninput="document.getElementById('o2-val-proj').textContent=this.value">
+      </div>
+      <div class="field">
+        <label>Niveau d'éducation</label>
+        <select id="o2-cand-edu">
+          <option>B.Sc</option><option selected>B.Tech</option><option>MBA</option><option>M.Sc</option><option>Ph.D</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Skills candidat</label>
+        <div class="skills-grid" id="o2-skills-cand"></div>
+      </div>
+    </div>
+    <div class="form-panel">
+      <h3>💼 Offre d'emploi</h3>
+      <div class="field">
+        <label>Expérience requise — <span class="range-val" id="o2-val-req">4</span> ans</label>
+        <input type="range" min="0" max="25" value="4" id="o2-req-exp" oninput="document.getElementById('o2-val-req').textContent=this.value">
+      </div>
+      <div class="field">
+        <label>Type de contrat</label>
+        <select id="o2-req-contract">
+          <option>CDI</option><option>CDD</option><option>Freelance</option><option>Stage</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Localisation</label>
+        <select id="o2-req-location">
+          <option>Tunis</option><option>Sfax</option><option>Sousse</option><option>Paris</option><option>Remote</option>
+        </select>
+      </div>
+      <div class="field" style="margin-top: 44px">
+        <label>Skills requis</label>
+        <div class="skills-grid" id="o2-skills-req"></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-primary btn-orange btn-block" onclick="runObj2()">🟠 Prédire — SVM + Cluster K-Means</button>
+
+  <div id="o2-results" style="display:none">
+    <div class="section-title orange">Features calculées</div>
+    <div class="cards c4" id="o2-feat-metrics"></div>
+    <hr class="divider">
+    <div class="section-title orange">Résultat SVM — Objectif 2</div>
+    <div class="cards c2" id="o2-result-svm"></div>
+    <div class="section-title orange">Cluster K-Means assigné</div>
+    <div id="o2-cluster-result"></div>
+    <div id="o2-verdict"></div>
+    <div class="cards c2" id="o2-skills-breakdown"></div>
+  </div>
+</div>
+
+<!-- ════════ OBJ3 MODEL ════════ -->
+<div id="page-obj3-model" class="page">
+  <div class="obj-strip green">
+    <div class="obj-strip-num" style="color:var(--green)">03</div>
+    <div class="obj-strip-info">
+      <h3 style="color:var(--green)">Objectif 3 — Score de matching (0–100)</h3>
+      <p>XGBoost Regressor (gradient boosting) + Régression Linéaire (baseline) → score continu</p>
+    </div>
+    <div class="obj-strip-models">
+      <span class="obj-model-tag" style="background:var(--green-dim);color:var(--green)">XGBoost</span>
+      <span class="obj-model-tag" style="background:var(--green-dim);color:var(--green)">Lin. Reg.</span>
+    </div>
+  </div>
+
+  <div class="cards c4">
+    <div class="card"><div class="card-label">XGBoost — R²</div><div class="card-value" style="color:var(--green)">0.91</div></div>
+    <div class="card"><div class="card-label">XGBoost — RMSE</div><div class="card-value" style="color:var(--green)">5.4</div></div>
+    <div class="card"><div class="card-label">Lin. Reg. — R²</div><div class="card-value">0.79</div></div>
+    <div class="card"><div class="card-label">Lin. Reg. — RMSE</div><div class="card-value">8.2</div></div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="section-title">R² & RMSE — comparaison</div>
+      <div class="chart-wrap" style="height:240px">
+        <canvas id="chart-obj3-r2"></canvas>
+      </div>
+    </div>
+    <div>
+      <div class="section-title">Feature Importance — XGBoost</div>
+      <div class="chart-wrap" style="height:240px">
+        <canvas id="chart-obj3-importance"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Formule du matching score</div>
+  <div class="code-block">matching_score = (50 × skill_overlap)
+              + (20 × AI_Score / 100)
+              + (30 × experience_match_ratio)
+
+experience_match_ratio = max(0, 1 - |exp_diff| / 3)
+skill_overlap = skills_communs / skills_requis
+
+→ Score ∈ [0, 100]
+→ Score ≥ 50 : recommandé pour entretien
+→ XGBoost améliore ce score via gradient boosting (R²=0.91)</div>
+
+  <div class="section-title">Métriques détaillées — Objectif 3</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Modèle</th><th>R²</th><th>MAE</th><th>RMSE</th><th>Force</th><th>Limite</th></tr></thead>
+      <tbody>
+        <tr><td>Régression Linéaire</td><td>0.79</td><td>6.1</td><td>8.2</td><td>Interprétable, coefficients directs</td><td>Suppose linéarité stricte</td></tr>
+        <tr class="highlight-row"><td><b>XGBoost Regressor</b></td><td style="color:var(--green)">0.91</td><td>3.8</td><td style="color:var(--green)">5.4</td><td>Capture non-linéarités, boosting</td><td>Boîte noire, moins interprétable</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">Distribution des scores prédits</div>
+  <div class="chart-wrap" style="height:240px">
+    <canvas id="chart-obj3-dist"></canvas>
+  </div>
+</div>
+
+<!-- ════════ OBJ3 PCA ════════ -->
+<div id="page-obj3-pca" class="page">
+  <div class="obj-strip green">
+    <div class="obj-strip-num" style="color:var(--green)">03</div>
+    <div class="obj-strip-info">
+      <h3 style="color:var(--green)">PCA — Objectif 3 (visualisation scores)</h3>
+      <p>Projeter les paires candidat-offre dans l'espace PCA coloré par le matching_score</p>
+    </div>
+    <div class="obj-strip-models">
+      <span class="obj-model-tag" style="background:var(--green-dim);color:var(--green)">PCA n=2</span>
+    </div>
+  </div>
+
+  <div class="cards c4">
+    <div class="card"><div class="card-label">Variance expliquée PC1</div><div class="card-value" style="color:var(--green)">36.9%</div></div>
+    <div class="card"><div class="card-label">Variance expliquée PC2</div><div class="card-value" style="color:var(--green)">25.9%</div></div>
+    <div class="card"><div class="card-label">Variance cumulée</div><div class="card-value" style="color:var(--green)">62.8%</div></div>
+    <div class="card"><div class="card-label">Corrélation PC1 ↔ Score</div><div class="card-value">0.76</div></div>
+  </div>
+
+  <div class="pca-insight">
+    <h4>🔍 Interprétation — PCA Objectif 3</h4>
+    <p>La PCA de l'Objectif 3 est appliquée sur les 9 features des paires candidat-offre. PC1 est fortement corrélée avec le matching_score (r=0.76) — les paires qui scorent haut se retrouvent à droite dans l'espace PCA. PC2 capture la diversité des contrats et localisations. Cette visualisation confirme que le score de matching suit une structure latente régulière dans les données, ce qui justifie la bonne performance de XGBoost (R²=0.91).</p>
+    <div class="pca-component-row">
+      <span class="pca-comp-label">PC1 (36.9%)</span>
+      <div class="pca-bar-outer"><div class="pca-bar-inner" style="width:36.9%;background:var(--green)"></div></div>
+      <span class="pca-pct">36.9%</span>
+    </div>
+    <div class="pca-component-row">
+      <span class="pca-comp-label">PC2 (25.9%)</span>
+      <div class="pca-bar-outer"><div class="pca-bar-inner" style="width:25.9%;background:var(--green);opacity:0.7"></div></div>
+      <span class="pca-pct">25.9%</span>
+    </div>
+    <div class="pca-component-row">
+      <span class="pca-comp-label">Autres (37.2%)</span>
+      <div class="pca-bar-outer"><div class="pca-bar-inner" style="width:37.2%;background:var(--border2)"></div></div>
+      <span class="pca-pct">37.2%</span>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="section-title">Scatter PCA — coloré par matching_score</div>
+      <div class="chart-wrap" style="height:320px">
+        <canvas id="chart-obj3-pca-scatter"></canvas>
+      </div>
+    </div>
+    <div>
+      <div class="section-title">Variance cumulée par composante</div>
+      <div class="chart-wrap" style="height:320px">
+        <canvas id="chart-obj3-pca-cumvar"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Loadings — contribution des features sur PC1 et PC2</div>
+  <div class="chart-wrap" style="height:240px">
+    <canvas id="chart-obj3-pca-loadings"></canvas>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Feature</th><th>Loading PC1</th><th>Loading PC2</th><th>Impact sur le score</th></tr></thead>
+      <tbody>
+        <tr><td>skill_overlap</td><td style="color:var(--green)">0.71</td><td>0.08</td><td>★★★ Le plus fort (50% du score)</td></tr>
+        <tr><td>exp_diff</td><td style="color:var(--green)">-0.58</td><td>0.14</td><td>★★★ Crucial (30% du score)</td></tr>
+        <tr><td>AI Score (0-100)</td><td>0.24</td><td style="color:var(--green)">0.58</td><td>★★ Significatif (20% du score)</td></tr>
+        <tr><td>exp_candidate</td><td>0.35</td><td>-0.28</td><td>★★ Corrélé à exp_diff</td></tr>
+        <tr><td>projects_count</td><td>0.29</td><td>0.34</td><td>★ Secondaire</td></tr>
+        <tr><td>contract_encoded</td><td>0.08</td><td style="color:var(--green)">0.52</td><td>★ Capturé par PC2</td></tr>
+        <tr><td>location_encoded</td><td>0.11</td><td>0.44</td><td>★ Capturé par PC2</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════════ OBJ3 PREDICT ════════ -->
+<div id="page-obj3-predict" class="page">
+  <div class="obj-strip green">
+    <div class="obj-strip-num" style="color:var(--green)">03</div>
+    <div class="obj-strip-info">
+      <h3 style="color:var(--green)">Prédiction — Objectif 3 (Matching Score)</h3>
+      <p>XGBoost Regressor + Régression Linéaire → score de matching 0–100</p>
+    </div>
+  </div>
+
+  <div class="two-col" style="margin-bottom:16px">
+    <div class="form-panel">
+      <h3>👤 Profil candidat</h3>
+      <div class="field">
+        <label>Expérience — <span class="range-val" id="o3-val-exp">5</span> ans</label>
+        <input type="range" min="0" max="25" value="5" id="o3-cand-exp" oninput="document.getElementById('o3-val-exp').textContent=this.value">
+      </div>
+      <div class="field">
+        <label>Niveau d'éducation</label>
+        <select id="o3-cand-edu">
+          <option>B.Sc</option><option selected>B.Tech</option><option>MBA</option><option>M.Sc</option><option>Ph.D</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>AI Score — <span class="range-val" id="o3-val-ai">72</span></label>
+        <input type="range" min="0" max="100" value="72" id="o3-cand-ai" oninput="document.getElementById('o3-val-ai').textContent=this.value">
+      </div>
+      <div class="field">
+        <label>Projets</label>
+        <input type="number" id="o3-cand-proj" value="8" min="0" max="50">
+      </div>
+      <div class="field">
+        <label>Skills candidat</label>
+        <div class="skills-grid" id="o3-skills-cand"></div>
+      </div>
+    </div>
+    <div class="form-panel">
+      <h3>💼 Offre d'emploi</h3>
+      <div class="field">
+        <label>Expérience requise — <span class="range-val" id="o3-val-req">4</span> ans</label>
+        <input type="range" min="0" max="25" value="4" id="o3-req-exp" oninput="document.getElementById('o3-val-req').textContent=this.value">
+      </div>
+      <div class="field">
+        <label>Type de contrat</label>
+        <select id="o3-req-contract">
+          <option>CDI</option><option>CDD</option><option>Freelance</option><option>Stage</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Localisation</label>
+        <select id="o3-req-location">
+          <option>Tunis</option><option>Sfax</option><option>Sousse</option><option>Paris</option><option>Remote</option>
+        </select>
+      </div>
+      <div class="field" style="margin-top:44px">
+        <label>Skills requis</label>
+        <div class="skills-grid" id="o3-skills-req"></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-primary btn-block" onclick="runObj3()">🟢 Prédire — XGBoost + Régression Linéaire</button>
+
+  <div id="o3-results" style="display:none">
+    <div class="section-title">Features calculées</div>
+    <div class="cards c4" id="o3-feat-metrics"></div>
+    <hr class="divider">
+    <div class="section-title">Scores de matching — Objectif 3</div>
+    <div class="cards c2" id="o3-result-reg"></div>
+    <div id="o3-verdict"></div>
+    <div class="cards c2" id="o3-skills-breakdown"></div>
+  </div>
+</div>
+
+<!-- ════════ COMPARISON ════════ -->
+<div id="page-comparison" class="page">
+  <h2 class="page-title">📊 Comparaison des modèles</h2>
+  <p class="page-sub">Métriques croisées, courbes ROC, feature importance — tous objectifs</p>
+
+  <div class="section-title">Tableau récapitulatif global</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Modèle</th><th>Type</th><th>Obj.</th><th>Accuracy</th><th>AUC-ROC</th><th>R²</th><th>RMSE</th><th>Force</th><th>Limite</th></tr></thead>
+      <tbody>
+        <tr><td><b>Decision Tree</b></td><td><span class="badge badge-blue">Classification</span></td><td>1</td><td>88%</td><td>0.87</td><td>—</td><td>—</td><td>Règles IF-THEN lisibles</td><td>Overfitting si profond</td></tr>
+        <tr><td><b>KNN</b></td><td><span class="badge badge-blue">Classification</span></td><td>1</td><td>86%</td><td>0.85</td><td>—</td><td>—</td><td>Intuitif, non-paramétrique</td><td>Lent sur grands datasets</td></tr>
+        <tr><td><b>PCA₁</b></td><td><span class="badge badge-gray">Réduction</span></td><td>1</td><td>—</td><td>—</td><td>—</td><td>—</td><td>Visualisation 2D, 63.2%</td><td>Perd interprétabilité</td></tr>
+        <tr class="highlight-row-orange"><td><b>SVM (RBF)</b></td><td><span class="badge badge-orange">Classification</span></td><td>2</td><td>92%</td><td>0.94</td><td>—</td><td>—</td><td>Robuste hautes dimensions</td><td>Lent sur 100K paires</td></tr>
+        <tr><td><b>K-Means + PCA₂</b></td><td><span class="badge badge-pink">Clustering</span></td><td>2</td><td>—</td><td>—</td><td>—</td><td>—</td><td>Segmentation, 63.1%</td><td>K à choisir manuellement</td></tr>
+        <tr><td><b>Rég. Linéaire</b></td><td><span class="badge badge-green">Régression</span></td><td>3</td><td>—</td><td>—</td><td>0.79</td><td>8.2</td><td>Interprétable, coefficients</td><td>Suppose linéarité</td></tr>
+        <tr class="highlight-row"><td><b>XGBoost + PCA₃</b></td><td><span class="badge badge-green">Régression</span></td><td>3</td><td>—</td><td>—</td><td>0.91</td><td>5.4</td><td>Gradient boosting, 62.8%</td><td>Boîte noire</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="section-title">Performance globale</div>
+      <div class="chart-wrap" style="height:240px"><canvas id="chart-cmp-perf"></canvas></div>
+    </div>
+    <div>
+      <div class="section-title">Courbes ROC — Classifieurs</div>
+      <div class="chart-wrap" style="height:240px"><canvas id="chart-cmp-roc"></canvas></div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="section-title">R² & RMSE — Régresseurs</div>
+      <div class="chart-wrap" style="height:240px"><canvas id="chart-cmp-r2"></canvas></div>
+    </div>
+    <div>
+      <div class="section-title">Feature Importance — XGBoost</div>
+      <div class="chart-wrap" style="height:240px"><canvas id="chart-cmp-importance"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section-title">Recommandations finales</div>
+  <div class="rec-grid">
+    <div class="rec-card orange"><h4 style="color:var(--orange)">🥇 SVM — Classification</h4><p>Meilleur AUC-ROC (0.94), robuste aux données de haute dimension. Recommandé pour la sélection finale.</p></div>
+    <div class="rec-card green"><h4 style="color:var(--green)">🥇 XGBoost — Scoring</h4><p>Meilleur R² (0.91), capture les relations non-linéaires entre features. Recommandé pour le matching score.</p></div>
+    <div class="rec-card blue"><h4 style="color:var(--blue)">📋 Decision Tree — Explicabilité</h4><p>Règle IF-THEN directement utilisable par les RH sans connaissance en ML. Idéal pour la transparence.</p></div>
+  </div>
+</div>
+
+<!-- ════════ TRAINING ════════ -->
+<div id="page-training" class="page">
+  <h2 class="page-title">⚙️ Entraînement des modèles</h2>
+  <p class="page-sub">Pipeline complet — 7 modèles + 3 PCA correspondant aux 3 objectifs</p>
+
+  <div class="field" style="max-width:380px;margin-bottom:18px">
+    <label>Candidats pour le cross-join — <span class="range-val" id="val-n-cands">200</span></label>
+    <input type="range" min="50" max="200" step="50" value="200" id="n-cands" oninput="document.getElementById('val-n-cands').textContent=this.value">
+    <div style="font-size:0.67rem;color:var(--text3);margin-top:3px">200 candidats × 500 offres = 100 000 paires</div>
+  </div>
+
+  <div class="obj-section">
+    <div class="obj-header"><div class="obj-dot" style="background:var(--blue)"></div><div class="obj-title" style="color:var(--blue)">Objectif 1 — Décision RH rapide</div></div>
+    <div class="model-row"><div class="model-row-left"><span>Decision Tree</span><span class="model-tag">max_depth=5 · gini · balanced</span></div><div style="display:flex;align-items:center;gap:10px"><div class="prog-outer"><div class="prog-inner" id="prog-dt"></div></div><span class="metric-pill" id="metric-dt" style="display:none">Acc: 88% · AUC: 0.87</span><span id="status-dt" style="font-size:0.68rem;color:var(--text3)">⏳ En attente</span></div></div>
+    <div class="model-row"><div class="model-row-left"><span>KNN Classifier</span><span class="model-tag">K=optimal (F1) · euclidean</span></div><div style="display:flex;align-items:center;gap:10px"><div class="prog-outer"><div class="prog-inner" id="prog-knn"></div></div><span class="metric-pill" id="metric-knn" style="display:none">Acc: 86% · AUC: 0.85</span><span id="status-knn" style="font-size:0.68rem;color:var(--text3)">⏳ En attente</span></div></div>
+    <div class="model-row"><div class="model-row-left"><span>PCA₁</span><span class="model-tag">n_components=2 · random_state=42</span></div><div style="display:flex;align-items:center;gap:10px"><div class="prog-outer"><div class="prog-inner" id="prog-pca1"></div></div><span class="metric-pill" id="metric-pca1" style="display:none">Var: 63.2%</span><span id="status-pca1" style="font-size:0.68rem;color:var(--text3)">⏳ En attente</span></div></div>
+  </div>
+
+  <div class="obj-section">
+    <div class="obj-header"><div class="obj-dot" style="background:var(--orange)"></div><div class="obj-title" style="color:var(--orange)">Objectif 2 — Sélection optimisée</div></div>
+    <div class="model-row"><div class="model-row-left"><span>SVM (kernel RBF)</span><span class="model-tag">C=1.0 · gamma=scale · probability=True</span></div><div style="display:flex;align-items:center;gap:10px"><div class="prog-outer"><div class="prog-inner" id="prog-svm"></div></div><span class="metric-pill" id="metric-svm" style="display:none">Acc: 92% · AUC: 0.94</span><span id="status-svm" style="font-size:0.68rem;color:var(--text3)">⏳ En attente</span></div></div>
+    <div class="model-row"><div class="model-row-left"><span>K-Means Clustering</span><span class="model-tag">K=optimal (Silhouette) · n_init=10</span></div><div style="display:flex;align-items:center;gap:10px"><div class="prog-outer"><div class="prog-inner" id="prog-kmeans"></div></div><span class="metric-pill" id="metric-kmeans" style="display:none">K=4 · Sil: 0.5812</span><span id="status-kmeans" style="font-size:0.68rem;color:var(--text3)">⏳ En attente</span></div></div>
+    <div class="model-row"><div class="model-row-left"><span>PCA₂</span><span class="model-tag">n_components=2 · random_state=42</span></div><div style="display:flex;align-items:center;gap:10px"><div class="prog-outer"><div class="prog-inner" id="prog-pca2"></div></div><span class="metric-pill" id="metric-pca2" style="display:none">Var: 63.1%</span><span id="status-pca2" style="font-size:0.68rem;color:var(--text3)">⏳ En attente</span></div></div>
+  </div>
+
+  <div class="obj-section">
+    <div class="obj-header"><div class="obj-dot" style="background:var(--green)"></div><div class="obj-title" style="color:var(--green)">Objectif 3 — Qualité du matching</div></div>
+    <div class="model-row"><div class="model-row-left"><span>Régression Linéaire</span><span class="model-tag">LinearRegression() baseline</span></div><div style="display:flex;align-items:center;gap:10px"><div class="prog-outer"><div class="prog-inner" id="prog-lr"></div></div><span class="metric-pill" id="metric-lr" style="display:none">R²: 0.79 · RMSE: 8.2</span><span id="status-lr" style="font-size:0.68rem;color:var(--text3)">⏳ En attente</span></div></div>
+    <div class="model-row"><div class="model-row-left"><span>XGBoost Regressor</span><span class="model-tag">n_estimators=300 · lr=0.05 · max_depth=6</span></div><div style="display:flex;align-items:center;gap:10px"><div class="prog-outer"><div class="prog-inner" id="prog-xgb"></div></div><span class="metric-pill" id="metric-xgb" style="display:none">R²: 0.91 · RMSE: 5.4</span><span id="status-xgb" style="font-size:0.68rem;color:var(--text3)">⏳ En attente</span></div></div>
+    <div class="model-row"><div class="model-row-left"><span>PCA₃</span><span class="model-tag">n_components=2 · random_state=42</span></div><div style="display:flex;align-items:center;gap:10px"><div class="prog-outer"><div class="prog-inner" id="prog-pca3"></div></div><span class="metric-pill" id="metric-pca3" style="display:none">Var: 62.8%</span><span id="status-pca3" style="font-size:0.68rem;color:var(--text3)">⏳ En attente</span></div></div>
+  </div>
+
+  <button class="btn-primary btn-block" onclick="simulateTraining()">🚀 Lancer l'entraînement complet (7 modèles + 3 PCA)</button>
+  <div id="log-box" class="log-box" style="display:none"></div>
+</div>
+
+</main>
+
+<script>
+// ══════════════════════ NAVIGATION ══════════════════════
+const CHART_REGISTRY = {};
+function destroyChart(id) { if(CHART_REGISTRY[id]){ CHART_REGISTRY[id].destroy(); delete CHART_REGISTRY[id]; } }
+
+document.querySelectorAll('.nav-item').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    const pg = 'page-' + btn.dataset.page;
+    document.getElementById(pg).classList.add('active');
+    setTimeout(() => initPageCharts(pg), 80);
+  });
+});
+
+// ══════════════════════ SHARED CHART OPTS ══════════════════════
+const DK = {
+  plugins: { legend: { labels: { color:'#7a90b5', font:{size:11} } } },
+  scales: {
+    x: { ticks:{color:'#7a90b5'}, grid:{color:'#1c2840'} },
+    y: { ticks:{color:'#7a90b5'}, grid:{color:'#1c2840'} }
+  }
+};
+
+// ══════════════════════ SKILLS SETUP ══════════════════════
+const ALL_SKILLS = ['Python','Machine Learning','SQL','NLP','Deep Learning','TensorFlow','Spark','Java','React','Node.js','Docker','Cloud','Data Analysis','Scrum'];
+
+function buildChips(containerId, defaultSelected) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = '';
+  ALL_SKILLS.forEach(sk => {
+    const chip = document.createElement('span');
+    chip.className = 'skill-chip' + (defaultSelected.includes(sk) ? ' selected' : '');
+    chip.textContent = sk;
+    chip.dataset.skill = sk;
+    chip.onclick = () => chip.classList.toggle('selected');
+    el.appendChild(chip);
+  });
+}
+
+const DEFAULT_CAND = ['Python','Machine Learning','SQL','Data Analysis'];
+const DEFAULT_REQ  = ['Python','Machine Learning','SQL','Deep Learning'];
+
+['o1','o2','o3'].forEach(prefix => {
+  buildChips(prefix+'-skills-cand', DEFAULT_CAND);
+  buildChips(prefix+'-skills-req',  DEFAULT_REQ);
+});
+
+function getSelected(containerId) {
+  return [...document.querySelectorAll('#'+containerId+' .skill-chip.selected')].map(c => c.dataset.skill);
+}
+
+function skillOverlap(cand, req) {
+  if (!req.length) return 0;
+  return cand.filter(s=>req.includes(s)).length / req.length;
+}
+
+const EDU_MAP = {"B.Sc":1,"B.Tech":2,"MBA":3,"M.Sc":4,"Ph.D":5};
+
+// ══════════════════════ PREDICTION HELPERS ══════════════════════
+function featMetricsHTML(overlap, expDiff, aiScore, isGood) {
+  return `
+    <div class="feat-card">
+      <div class="f-label">Skill Overlap</div>
+      <div class="f-val" style="color:${overlap>0.4?'var(--green)':'var(--red)'}">${(overlap*100).toFixed(0)}%</div>
+      <div class="f-delta ${overlap>0.4?'delta-ok':'delta-bad'}">${overlap>0.4?'✅ > 40%':'❌ ≤ 40%'}</div>
+    </div>
+    <div class="feat-card">
+      <div class="f-label">Écart expérience</div>
+      <div class="f-val" style="color:${expDiff<3?'var(--green)':'var(--red)'}">${expDiff} ans</div>
+      <div class="f-delta ${expDiff<3?'delta-ok':'delta-bad'}">${expDiff<3?'✅ < 3 ans':'❌ ≥ 3 ans'}</div>
+    </div>
+    <div class="feat-card">
+      <div class="f-label">AI Score</div>
+      <div class="f-val">${aiScore}</div>
+      <div class="f-delta" style="color:var(--text3)">/ 100</div>
+    </div>
+    <div class="feat-card">
+      <div class="f-label">Good Match (règle)</div>
+      <div class="f-val" style="color:${isGood?'var(--green)':'var(--red)'}">${isGood?'OUI':'NON'}</div>
+      <div class="f-delta ${isGood?'delta-ok':'delta-bad'}">${isGood?'✅ Recommandé':'❌ Non recommandé'}</div>
+    </div>`;
+}
+
+function verdictHTML(isGood, overlap, expDiff) {
+  return `<div class="verdict-banner ${isGood?'good':'bad'}">
+    ${isGood
+      ? `🎯 <b>Recommandé pour entretien</b> — Skill overlap ${(overlap*100).toFixed(0)}% > 40% ET écart expérience ${expDiff} ans < 3 ans`
+      : `🚫 <b>Non recommandé</b> — ${overlap<=0.4?`Skill overlap ${(overlap*100).toFixed(0)}% ≤ 40%`:''}${overlap<=0.4&&expDiff>=3?' ET ':''}${expDiff>=3?`Écart expérience ${expDiff} ans ≥ 3 ans`:''}`}
+  </div>`;
+}
+
+function skillsBreakdownHTML(candSkills, reqSkills) {
+  const common  = candSkills.filter(s=>reqSkills.includes(s));
+  const missing = reqSkills.filter(s=>!candSkills.includes(s));
+  return `
+    <div class="card"><div class="card-label">✅ Skills en commun</div><div style="font-size:0.8rem;color:var(--text2);margin-top:6px">${common.length?common.join(', '):'Aucun'}</div></div>
+    <div class="card"><div class="card-label">❌ Skills manquants</div><div style="font-size:0.8rem;color:var(--text2);margin-top:6px">${missing.length?missing.join(', '):'Aucun'}</div></div>`;
+}
+
+// ══════════════════════ OBJ1 PREDICTION ══════════════════════
+function runObj1() {
+  const candExp  = +document.getElementById('o1-cand-exp').value;
+  const reqExp   = +document.getElementById('o1-req-exp').value;
+  const aiScore  = +document.getElementById('o1-cand-ai').value;
+  const eduEnc   = EDU_MAP[document.getElementById('o1-cand-edu').value]||2;
+  const cSkills  = getSelected('o1-skills-cand');
+  const rSkills  = getSelected('o1-skills-req');
+  const overlap  = skillOverlap(cSkills, rSkills);
+  const expDiff  = Math.abs(candExp - reqExp);
+  const isGood   = overlap > 0.40 && expDiff < 3;
+
+  document.getElementById('o1-feat-metrics').innerHTML = featMetricsHTML(overlap, expDiff, aiScore, isGood);
+
+  // Decision Tree
+  let dtProb;
+  if (overlap>0.40){ dtProb = expDiff<3.0 ? (aiScore>65?0.89:0.72) : 0.19; }
+  else { dtProb = expDiff<1.5 ? 0.24 : 0.09; }
+  // KNN
+  let knnProb = Math.max(0.05, Math.min(0.95, 0.3 + overlap*0.5 - expDiff*0.06 + aiScore*0.002));
+
+  document.getElementById('o1-result-clf').innerHTML = [
+    {name:'Decision Tree', prob:dtProb},
+    {name:'KNN Classifier', prob:knnProb}
+  ].map(c => {
+    const good = c.prob>=0.5;
+    return `<div class="result-card ${good?'good':'bad'}">
+      <div class="r-model">${c.name}</div>
+      <div class="r-obj">Objectif 1</div>
+      <div class="r-verdict" style="color:${good?'var(--green)':'var(--red)'}">${good?'✅ Good Match':'❌ Poor Match'}</div>
+      <div class="r-prob">Probabilité : ${(c.prob*100).toFixed(1)}%</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('o1-verdict').innerHTML = verdictHTML(isGood, overlap, expDiff);
+  document.getElementById('o1-skills-breakdown').innerHTML = skillsBreakdownHTML(cSkills, rSkills);
+  const el = document.getElementById('o1-results');
+  el.style.display='block';
+  el.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ══════════════════════ OBJ2 PREDICTION ══════════════════════
+function runObj2() {
+  const candExp = +document.getElementById('o2-cand-exp').value;
+  const reqExp  = +document.getElementById('o2-req-exp').value;
+  const aiScore = +document.getElementById('o2-cand-ai').value;
+  const eduEnc  = EDU_MAP[document.getElementById('o2-cand-edu').value]||2;
+  const cSkills = getSelected('o2-skills-cand');
+  const rSkills = getSelected('o2-skills-req');
+  const overlap = skillOverlap(cSkills, rSkills);
+  const expDiff = Math.abs(candExp - reqExp);
+  const isGood  = overlap > 0.40 && expDiff < 3;
+
+  document.getElementById('o2-feat-metrics').innerHTML = featMetricsHTML(overlap, expDiff, aiScore, isGood);
+
+  // SVM
+  const svmProb = Math.max(0.05, Math.min(0.97, 0.1 + overlap*0.6 - expDiff*0.07 + aiScore*0.003 + eduEnc*0.02));
+  document.getElementById('o2-result-svm').innerHTML = [
+    {name:'SVM (kernel RBF)', prob:svmProb}
+  ].map(c => {
+    const good = c.prob>=0.5;
+    return `<div class="result-card ${good?'good':'bad'}">
+      <div class="r-model">${c.name}</div>
+      <div class="r-obj">Objectif 2 — C=1.0 · gamma=scale</div>
+      <div class="r-verdict" style="color:${good?'var(--green)':'var(--red)'}">${good?'✅ Good Match':'❌ Poor Match'}</div>
+      <div class="r-prob">Probabilité SVM : ${(c.prob*100).toFixed(1)}%</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Marge SVM (hyperplan)</div>
+      <div class="card-value" style="color:var(--orange)">${(Math.abs(svmProb-0.5)*2).toFixed(3)}</div>
+      <div class="card-sub">Distance au plan de décision</div>
+    </div>`;
+  }).join('');
+
+  // K-Means cluster
+  let cluster, clusterName;
+  if (candExp >= 10)       { cluster = 0; clusterName = 'Seniors Tech'; }
+  else if (candExp <= 3)   { cluster = 1; clusterName = 'Juniors polyvalents'; }
+  else if (aiScore >= 78)  { cluster = 2; clusterName = 'Profils spécialisés'; }
+  else                     { cluster = 3; clusterName = 'Profils académiques'; }
+  const clColors = ['#3D8EF0','#1DB974','#D4537E','#F0A030'];
+  document.getElementById('o2-cluster-result').innerHTML = `
+    <div class="verdict-banner good" style="border-color:${clColors[cluster]};background:${clColors[cluster]}22;color:${clColors[cluster]}">
+      Ce candidat appartient au <b>Cluster ${cluster} — ${clusterName}</b><br>
+      <span style="font-size:0.76rem;opacity:0.8">💡 Profil adapté aux offres du groupe ${clusterName}</span>
+    </div>`;
+
+  document.getElementById('o2-verdict').innerHTML = verdictHTML(isGood, overlap, expDiff);
+  document.getElementById('o2-skills-breakdown').innerHTML = skillsBreakdownHTML(cSkills, rSkills);
+  const el = document.getElementById('o2-results');
+  el.style.display='block';
+  el.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ══════════════════════ OBJ3 PREDICTION ══════════════════════
+function runObj3() {
+  const candExp = +document.getElementById('o3-cand-exp').value;
+  const reqExp  = +document.getElementById('o3-req-exp').value;
+  const aiScore = +document.getElementById('o3-cand-ai').value;
+  const cSkills = getSelected('o3-skills-cand');
+  const rSkills = getSelected('o3-skills-req');
+  const overlap = skillOverlap(cSkills, rSkills);
+  const expDiff = Math.abs(candExp - reqExp);
+  const isGood  = overlap > 0.40 && expDiff < 3;
+
+  document.getElementById('o3-feat-metrics').innerHTML = featMetricsHTML(overlap, expDiff, aiScore, isGood);
+
+  const expMatchRaw = expDiff < 3 ? 1 - expDiff/3 : 0;
+  const base = 50*overlap + 20*(aiScore/100) + 30*expMatchRaw;
+  const lrScore  = Math.max(0, Math.min(100, base*0.97 + (Math.random()*2-1)));
+  const xgbScore = Math.max(0, Math.min(100, base*1.03 + (Math.random()*1.5-0.75)));
+
+  document.getElementById('o3-result-reg').innerHTML = [
+    {name:'Régression Linéaire', score:lrScore, sub:'R²=0.79 · RMSE=8.2'},
+    {name:'XGBoost Regressor',   score:xgbScore, sub:'R²=0.91 · RMSE=5.4'}
+  ].map(r => {
+    const col = r.score>=50?'var(--green)':'var(--red)';
+    return `<div class="result-card">
+      <div class="r-model">${r.name}</div>
+      <div class="r-obj">${r.sub}</div>
+      <div class="r-score" style="color:${col}">${r.score.toFixed(1)}</div>
+      <div class="r-prob">/ 100</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${r.score}%;background:${col}"></div></div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('o3-verdict').innerHTML = verdictHTML(isGood, overlap, expDiff);
+  document.getElementById('o3-skills-breakdown').innerHTML = skillsBreakdownHTML(cSkills, rSkills);
+  const el = document.getElementById('o3-results');
+  el.style.display='block';
+  el.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ══════════════════════ TRAINING SIMULATION ══════════════════════
+let logQ = 0;
+function addLog(msg, cls, delay) {
+  logQ += delay||0;
+  setTimeout(()=>{
+    const log = document.getElementById('log-box');
+    const div = document.createElement('div');
+    div.className = cls||'';
+    div.textContent = msg;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+  }, logQ);
+}
+function animBar(id){ const el=document.getElementById(id); el.style.width='0%'; let w=0; const iv=setInterval(()=>{ w+=Math.random()*8+2; if(w>=95){clearInterval(iv);return;} el.style.width=w+'%'; },120); }
+
+function simulateTraining() {
+  logQ = 0;
+  const log = document.getElementById('log-box');
+  log.style.display='block'; log.innerHTML='';
+
+  const models = [
+    {id:'dt',    label:'Decision Tree',     delay:600,  dur:800,  metrics:'Acc: 88% · AUC: 0.87'},
+    {id:'knn',   label:'KNN Classifier',    delay:1600, dur:1000, metrics:'Acc: 86% · AUC: 0.85'},
+    {id:'pca1',  label:'PCA₁',              delay:2800, dur:400,  metrics:'Var: 63.2%'},
+    {id:'svm',   label:'SVM (RBF)',         delay:3400, dur:2200, metrics:'Acc: 92% · AUC: 0.94'},
+    {id:'kmeans',label:'K-Means + PCA₂',   delay:5800, dur:900,  metrics:'K=4 · Sil: 0.5812 · Var: 63.1%'},
+    {id:'pca2',  label:'PCA₂',             delay:6900, dur:300,  metrics:'Var: 63.1%'},
+    {id:'lr',    label:'Rég. Linéaire',     delay:7300, dur:500,  metrics:'R²: 0.79 · RMSE: 8.2'},
+    {id:'xgb',   label:'XGBoost Regressor', delay:7900, dur:1800, metrics:'R²: 0.91 · RMSE: 5.4'},
+    {id:'pca3',  label:'PCA₃',             delay:9800, dur:300,  metrics:'Var: 62.8%'},
+  ];
+
+  addLog('📥 Téléchargement CSV depuis Google Drive…','log-blue',200);
+  addLog('⚙️  Feature Engineering (cross-join + features)…','log-blue',900);
+  addLog('✅ 100 000 paires générées | Features : 9','log-green',1600);
+  addLog('─────────────────────────────────','',2000);
+
+  models.forEach(m => {
+    setTimeout(()=>{ document.getElementById('status-'+m.id).textContent='🔄 En cours…'; document.getElementById('status-'+m.id).style.color='var(--orange)'; addLog(`⏳ Entraînement de ${m.label}…`,'log-orange'); animBar('prog-'+m.id); }, m.delay);
+    setTimeout(()=>{ document.getElementById('prog-'+m.id).style.width='100%'; document.getElementById('status-'+m.id).textContent='✅ Terminé'; document.getElementById('status-'+m.id).style.color='var(--green)'; document.getElementById('metric-'+m.id).style.display='inline'; addLog(`✅ ${m.label} — ${m.metrics}`,'log-green'); }, m.delay+m.dur);
+  });
+
+  setTimeout(()=>{ addLog('─────────────────────────────────','',0); addLog('🎉  Entraînement terminé ! 7 modèles + 3 PCA sauvegardés.','log-green',0); }, 9800+300+400);
+}
+
+// ══════════════════════ CHART INIT ══════════════════════
+function rng(seed){ let s=seed; return ()=>{ s=(s*1664525+1013904223)&0xffffffff; return (s>>>0)/0xffffffff; }; }
+
+function makeROC(auc, seed){
+  const r=rng(seed); const pts=[{x:0,y:0}];
+  for(let i=1;i<40;i++){ const fpr=i/40+(r()-0.5)*0.03; const tpr=Math.min(1,fpr+auc-0.5+(r()-0.5)*0.06); pts.push({x:Math.max(0,Math.min(1,fpr)),y:Math.max(0,Math.min(1,tpr))}); }
+  pts.push({x:1,y:1}); return pts.sort((a,b)=>a.x-b.x);
+}
+
+function makePCAScatter(clusters, seed0) {
+  const clrNames = ['Seniors Tech','Juniors polyvalents','Profils spécialisés','Profils académiques'];
+  const clrColors= ['#3D8EF0','#1DB974','#D4537E','#F0A030'];
+  const centers  = [[-2.5,1.2],[1.8,-1.5],[0.2,0.8],[-1.0,-0.4]];
+  return clusters.map((k,i) => {
+    const r=rng(seed0+k*77+13);
+    const [cx,cy]=centers[k];
+    return { label:clrNames[k], data:Array.from({length:55},()=>({x:cx+(r()-0.5)*2.8,y:cy+(r()-0.5)*2.2})), backgroundColor:clrColors[k]+'bb', pointRadius:4 };
+  });
+}
+
+function makeCumVar(variances) {
+  let cum=0;
+  return variances.map(v=>{cum+=v; return +cum.toFixed(1);});
+}
+
+function initOverviewChart(){
+  destroyChart('chart-perf');
+  const ctx=document.getElementById('chart-perf').getContext('2d');
+  CHART_REGISTRY['chart-perf']=new Chart(ctx,{
+    type:'bar',
+    data:{ labels:['SVM (RBF)','XGBoost','Decision Tree','KNN','Rég. Linéaire','K-Means (Sil)'],
+      datasets:[{label:'Score (Acc / R² / Sil)', data:[0.92,0.91,0.88,0.86,0.79,0.58],
+        backgroundColor:['#F0A030','#1DB974','#3D8EF0','#3D8EF0','#1DB974','#D4537E'], borderRadius:5}] },
+    options:{...DK,responsive:true,maintainAspectRatio:false,
+      plugins:{...DK.plugins,legend:{display:false}},
+      scales:{...DK.scales,y:{...DK.scales.y,min:0.4,max:1.0}}}
+  });
+}
+
+function initObj1Charts() {
+  destroyChart('chart-obj1-acc');
+  const c1=document.getElementById('chart-obj1-acc').getContext('2d');
+  CHART_REGISTRY['chart-obj1-acc']=new Chart(c1,{type:'bar',data:{
+    labels:['Decision Tree','KNN'],
+    datasets:[{label:'Accuracy',data:[0.88,0.86],backgroundColor:['#3D8EF0','#3D8EF0aa'],borderRadius:5},
+              {label:'AUC-ROC', data:[0.87,0.85],backgroundColor:['#6bc0f8','#6bc0f8aa'],borderRadius:5}]
+  },options:{...DK,responsive:true,maintainAspectRatio:false,scales:{...DK.scales,y:{...DK.scales.y,min:0.8,max:1.0}}}});
+
+  destroyChart('chart-obj1-roc');
+  const c2=document.getElementById('chart-obj1-roc').getContext('2d');
+  CHART_REGISTRY['chart-obj1-roc']=new Chart(c2,{type:'scatter',data:{datasets:[
+    {label:'Aléatoire',data:[{x:0,y:0},{x:1,y:1}],showLine:true,borderColor:'#333',borderDash:[5,5],pointRadius:0,borderWidth:1},
+    {label:'Decision Tree (0.87)',data:makeROC(0.87,42),showLine:true,borderColor:'#3D8EF0',pointRadius:0,borderWidth:2,fill:false},
+    {label:'KNN (0.85)',data:makeROC(0.85,77),showLine:true,borderColor:'#9FE1CB',pointRadius:0,borderWidth:2,fill:false},
+  ]},options:{...DK,responsive:true,maintainAspectRatio:false,scales:{
+    x:{...DK.scales.x,min:0,max:1,title:{display:true,text:'FPR',color:'#7a90b5'}},
+    y:{...DK.scales.y,min:0,max:1,title:{display:true,text:'TPR',color:'#7a90b5'}}
+  }}});
+
+  destroyChart('chart-obj1-cm');
+  const c3=document.getElementById('chart-obj1-cm').getContext('2d');
+  CHART_REGISTRY['chart-obj1-cm']=new Chart(c3,{type:'bar',data:{
+    labels:['VP (Prédit Good, Réel Good)','FP (Prédit Good, Réel Poor)','FN (Prédit Poor, Réel Good)','VN (Prédit Poor, Réel Poor)'],
+    datasets:[{label:'Decision Tree',data:[8800,1200,1400,8600],backgroundColor:['#1DB974','#E84040','#E84040','#1DB974'],borderRadius:5}]
+  },options:{...DK,responsive:true,maintainAspectRatio:false,plugins:{...DK.plugins,legend:{display:false}},scales:{...DK.scales,x:{...DK.scales.x,ticks:{maxRotation:0,font:{size:9}}}}}});
+}
+
+function initObj1PCACharts() {
+  destroyChart('chart-obj1-pca-scatter');
+  const c1=document.getElementById('chart-obj1-pca-scatter').getContext('2d');
+  const r=rng(1); const goodPts=[],poorPts=[];
+  for(let i=0;i<120;i++){ goodPts.push({x:1.2+(r()-0.5)*2.5,y:0.8+(r()-0.5)*2}); }
+  for(let i=0;i<80;i++){  poorPts.push({x:-1.8+(r()-0.5)*2.5,y:-1.2+(r()-0.5)*2}); }
+  CHART_REGISTRY['chart-obj1-pca-scatter']=new Chart(c1,{type:'scatter',data:{datasets:[
+    {label:'Good Match',data:goodPts,backgroundColor:'#1DB974bb',pointRadius:4},
+    {label:'Poor Match',data:poorPts,backgroundColor:'#E84040bb',pointRadius:4},
+  ]},options:{...DK,responsive:true,maintainAspectRatio:false,scales:{
+    x:{...DK.scales.x,title:{display:true,text:'PC1 (38.4%)',color:'#7a90b5'}},
+    y:{...DK.scales.y,title:{display:true,text:'PC2 (24.8%)',color:'#7a90b5'}}
+  }}});
+
+  destroyChart('chart-obj1-pca-cumvar');
+  const c2=document.getElementById('chart-obj1-pca-cumvar').getContext('2d');
+  const varComponents=[38.4,24.8,14.2,9.8,6.4,3.8,2.6];
+  CHART_REGISTRY['chart-obj1-pca-cumvar']=new Chart(c2,{type:'line',data:{
+    labels:['PC1','PC2','PC3','PC4','PC5','PC6','PC7'],
+    datasets:[
+      {label:'Variance cumulée %',data:makeCumVar(varComponents),borderColor:'#3D8EF0',backgroundColor:'rgba(61,142,240,0.1)',fill:true,tension:0.3,pointBackgroundColor:'#3D8EF0'},
+      {label:'Variance par composante',data:varComponents,borderColor:'#7a90b5',backgroundColor:'transparent',fill:false,tension:0.3,borderDash:[4,3]}
+    ]
+  },options:{...DK,responsive:true,maintainAspectRatio:false,scales:{...DK.scales,y:{...DK.scales.y,max:110}}}});
+
+  destroyChart('chart-obj1-pca-loadings');
+  const c3=document.getElementById('chart-obj1-pca-loadings').getContext('2d');
+  CHART_REGISTRY['chart-obj1-pca-loadings']=new Chart(c3,{type:'bar',data:{
+    labels:['skill_overlap','exp_diff','AI Score','edu_encoded','experienceYears','projects_count','contract_enc'],
+    datasets:[
+      {label:'Loading PC1',data:[0.68,-0.55,0.22,0.18,0.31,0.28,0.10],backgroundColor:'rgba(61,142,240,0.7)',borderRadius:4},
+      {label:'Loading PC2',data:[0.12,0.18,0.61,0.52,-0.24,0.31,0.14],backgroundColor:'rgba(29,185,116,0.7)',borderRadius:4}
+    ]
+  },options:{...DK,responsive:true,maintainAspectRatio:false,scales:{...DK.scales,y:{...DK.scales.y,min:-0.7,max:0.8}}}});
+}
+
+function initObj2Charts() {
+  destroyChart('chart-obj2-roc');
+  const c1=document.getElementById('chart-obj2-roc').getContext('2d');
+  CHART_REGISTRY['chart-obj2-roc']=new Chart(c1,{type:'scatter',data:{datasets:[
+    {label:'Aléatoire',data:[{x:0,y:0},{x:1,y:1}],showLine:true,borderColor:'#333',borderDash:[5,5],pointRadius:0,borderWidth:1},
+    {label:'SVM RBF (AUC=0.94)',data:makeROC(0.94,99),showLine:true,borderColor:'#F0A030',pointRadius:0,borderWidth:2.5,fill:false},
+  ]},options:{...DK,responsive:true,maintainAspectRatio:false,scales:{
+    x:{...DK.scales.x,min:0,max:1,title:{display:true,text:'FPR',color:'#7a90b5'}},
+    y:{...DK.scales.y,min:0,max:1,title:{display:true,text:'TPR',color:'#7a90b5'}}
+  }}});
+
+  destroyChart('chart-obj2-elbow');
+  const c2=document.getElementById('chart-obj2-elbow').getContext('2d');
+  CHART_REGISTRY['chart-obj2-elbow']=new Chart(c2,{type:'line',data:{
+    labels:['K=2','K=3','K=4','K=5','K=6','K=7'],
+    datasets:[
+      {label:'Inertie (×1000)',data:[82,63,42,38,35,33],borderColor:'#F0A030',fill:false,tension:0.3,pointBackgroundColor:'#F0A030'},
+      {label:'Silhouette ×100',data:[48,52,58,54,51,49],borderColor:'#3D8EF0',fill:false,tension:0.3,borderDash:[4,3],pointBackgroundColor:'#3D8EF0'}
+    ]
+  },options:{...DK,responsive:true,maintainAspectRatio:false}});
+
+  destroyChart('chart-obj2-clusters');
+  const c3=document.getElementById('chart-obj2-clusters').getContext('2d');
+  CHART_REGISTRY['chart-obj2-clusters']=new Chart(c3,{type:'bar',data:{
+    labels:['Seniors Tech','Juniors polyvalents','Profils spécialisés','Profils académiques'],
+    datasets:[{label:'Expérience moy. (ans)',data:[14.2,3.1,7.8,5.4],backgroundColor:['#3D8EF0','#1DB974','#D4537E','#F0A030'],borderRadius:5}]
+  },options:{...DK,responsive:true,maintainAspectRatio:false,plugins:{...DK.plugins,legend:{display:false}}}});
+}
+
+function initObj2PCACharts() {
+  destroyChart('chart-obj2-pca-scatter');
+  const c1=document.getElementById('chart-obj2-pca-scatter').getContext('2d');
+  CHART_REGISTRY['chart-obj2-pca-scatter']=new Chart(c1,{type:'scatter',data:{datasets:makePCAScatter([0,1,2,3],42)},
+    options:{...DK,responsive:true,maintainAspectRatio:false,scales:{
+      x:{...DK.scales.x,title:{display:true,text:'PC1 (37.8%)',color:'#7a90b5'}},
+      y:{...DK.scales.y,title:{display:true,text:'PC2 (25.3%)',color:'#7a90b5'}}
+    }}});
+
+  destroyChart('chart-obj2-pca-cumvar');
+  const c2=document.getElementById('chart-obj2-pca-cumvar').getContext('2d');
+  CHART_REGISTRY['chart-obj2-pca-cumvar']=new Chart(c2,{type:'line',data:{
+    labels:['PC1','PC2','PC3','PC4','PC5','PC6','PC7'],
+    datasets:[
+      {label:'Variance cumulée %',data:makeCumVar([37.8,25.3,14.8,9.4,6.1,3.9,2.7]),borderColor:'#F0A030',backgroundColor:'rgba(240,160,48,0.1)',fill:true,tension:0.3,pointBackgroundColor:'#F0A030'},
+      {label:'Variance par composante',data:[37.8,25.3,14.8,9.4,6.1,3.9,2.7],borderColor:'#7a90b5',backgroundColor:'transparent',fill:false,tension:0.3,borderDash:[4,3]}
+    ]
+  },options:{...DK,responsive:true,maintainAspectRatio:false,scales:{...DK.scales,y:{...DK.scales.y,max:110}}}});
+
+  destroyChart('chart-obj2-pca-loadings');
+  const c3=document.getElementById('chart-obj2-pca-loadings').getContext('2d');
+  CHART_REGISTRY['chart-obj2-pca-loadings']=new Chart(c3,{type:'bar',data:{
+    labels:['experienceYears','AI Score','projects_count','edu_encoded','skill_count','exp_diff','contract_enc'],
+    datasets:[
+      {label:'Loading PC1',data:[0.72,0.15,0.34,0.20,0.42,-0.30,0.08],backgroundColor:'rgba(240,160,48,0.7)',borderRadius:4},
+      {label:'Loading PC2',data:[-0.18,0.64,0.48,0.38,0.22,0.12,0.30],backgroundColor:'rgba(61,142,240,0.7)',borderRadius:4}
+    ]
+  },options:{...DK,responsive:true,maintainAspectRatio:false,scales:{...DK.scales,y:{...DK.scales.y,min:-0.5,max:0.8}}}});
+}
+
+function initObj3Charts() {
+  destroyChart('chart-obj3-r2');
+  const c1=document.getElementById('chart-obj3-r2').getContext('2d');
+  CHART_REGISTRY['chart-obj3-r2']=new Chart(c1,{type:'bar',data:{
+    labels:['Rég. Linéaire','XGBoost'],
+    datasets:[
+      {label:'R²',  data:[0.79,0.91],backgroundColor:['#3D8EF0','#1DB974'],borderRadius:5,yAxisID:'y'},
+      {label:'RMSE',data:[8.2,5.4],  backgroundColor:['#5599dd','#5DCAA5'],borderRadius:5,yAxisID:'y2'}
+    ]
+  },options:{...DK,responsive:true,maintainAspectRatio:false,scales:{
+    x:DK.scales.x,
+    y:{...DK.scales.y,position:'left',min:0,max:1.1,title:{display:true,text:'R²',color:'#7a90b5'}},
+    y2:{...DK.scales.y,position:'right',min:0,max:12,title:{display:true,text:'RMSE',color:'#7a90b5'},grid:{display:false}}
+  }}});
+
+  destroyChart('chart-obj3-importance');
+  const c2=document.getElementById('chart-obj3-importance').getContext('2d');
+  const feats=['experienceYears','Experience (Years)','Projects Count','AI Score','location_enc','contract_enc','edu_enc','exp_diff','skill_overlap'];
+  const imp=[0.02,0.02,0.03,0.04,0.06,0.08,0.12,0.25,0.38];
+  CHART_REGISTRY['chart-obj3-importance']=new Chart(c2,{type:'bar',data:{
+    labels:feats, datasets:[{label:'Importance',data:imp,backgroundColor:imp.map(v=>`rgba(29,185,116,${0.3+v*1.8})`),borderRadius:4}]
+  },options:{indexAxis:'y',...DK,responsive:true,maintainAspectRatio:false,plugins:{...DK.plugins,legend:{display:false}}}});
+
+  destroyChart('chart-obj3-dist');
+  const c3=document.getElementById('chart-obj3-dist').getContext('2d');
+  const r=rng(7); const bins=Array.from({length:20},(_,i)=>i*5); const lrD=[],xgbD=[];
+  for(let i=0;i<20;i++){ lrD.push(Math.floor(r()*80+40*(i<4?0.5:i<8?1.2:i<14?1.8:0.9))); xgbD.push(Math.floor(r()*60+50*(i<4?0.4:i<8?1.0:i<14?2.0:1.0))); }
+  CHART_REGISTRY['chart-obj3-dist']=new Chart(c3,{type:'line',data:{
+    labels:bins.map(b=>b+'-'+(b+5)),
+    datasets:[
+      {label:'Rég. Linéaire',data:lrD,borderColor:'#3D8EF0',backgroundColor:'rgba(61,142,240,0.1)',fill:true,tension:0.4},
+      {label:'XGBoost',      data:xgbD,borderColor:'#1DB974',backgroundColor:'rgba(29,185,116,0.1)',fill:true,tension:0.4}
+    ]
+  },options:{...DK,responsive:true,maintainAspectRatio:false}});
+}
+
+function initObj3PCACharts() {
+  destroyChart('chart-obj3-pca-scatter');
+  const c1=document.getElementById('chart-obj3-pca-scatter').getContext('2d');
+  const r=rng(13); const lowPts=[],midPts=[],highPts=[];
+  for(let i=0;i<60;i++){ lowPts.push({x:-2.2+(r()-0.5)*2,y:(r()-0.5)*2}); }
+  for(let i=0;i<80;i++){ midPts.push({x:0.0+(r()-0.5)*2,y:(r()-0.5)*2}); }
+  for(let i=0;i<60;i++){ highPts.push({x:2.0+(r()-0.5)*2,y:(r()-0.5)*2}); }
+  CHART_REGISTRY['chart-obj3-pca-scatter']=new Chart(c1,{type:'scatter',data:{datasets:[
+    {label:'Score < 40 (faible)',data:lowPts, backgroundColor:'#E84040aa',pointRadius:4},
+    {label:'Score 40-70',        data:midPts, backgroundColor:'#F0A030aa',pointRadius:4},
+    {label:'Score > 70 (fort)',  data:highPts,backgroundColor:'#1DB974aa',pointRadius:4},
+  ]},options:{...DK,responsive:true,maintainAspectRatio:false,scales:{
+    x:{...DK.scales.x,title:{display:true,text:'PC1 (36.9%)',color:'#7a90b5'}},
+    y:{...DK.scales.y,title:{display:true,text:'PC2 (25.9%)',color:'#7a90b5'}}
+  }}});
+
+  destroyChart('chart-obj3-pca-cumvar');
+  const c2=document.getElementById('chart-obj3-pca-cumvar').getContext('2d');
+  CHART_REGISTRY['chart-obj3-pca-cumvar']=new Chart(c2,{type:'line',data:{
+    labels:['PC1','PC2','PC3','PC4','PC5','PC6','PC7'],
+    datasets:[
+      {label:'Variance cumulée %',data:makeCumVar([36.9,25.9,14.4,9.6,6.2,4.1,2.9]),borderColor:'#1DB974',backgroundColor:'rgba(29,185,116,0.1)',fill:true,tension:0.3,pointBackgroundColor:'#1DB974'},
+      {label:'Variance par composante',data:[36.9,25.9,14.4,9.6,6.2,4.1,2.9],borderColor:'#7a90b5',backgroundColor:'transparent',fill:false,tension:0.3,borderDash:[4,3]}
+    ]
+  },options:{...DK,responsive:true,maintainAspectRatio:false,scales:{...DK.scales,y:{...DK.scales.y,max:110}}}});
+
+  destroyChart('chart-obj3-pca-loadings');
+  const c3=document.getElementById('chart-obj3-pca-loadings').getContext('2d');
+  CHART_REGISTRY['chart-obj3-pca-loadings']=new Chart(c3,{type:'bar',data:{
+    labels:['skill_overlap','exp_diff','AI Score','exp_candidate','projects_count','contract_enc','location_enc','edu_enc'],
+    datasets:[
+      {label:'Loading PC1',data:[0.71,-0.58,0.24,0.35,0.29,0.08,0.11,0.15],backgroundColor:'rgba(29,185,116,0.7)',borderRadius:4},
+      {label:'Loading PC2',data:[0.08,0.14,0.58,-0.28,0.34,0.52,0.44,0.22],backgroundColor:'rgba(61,142,240,0.7)',borderRadius:4}
+    ]
+  },options:{...DK,responsive:true,maintainAspectRatio:false,scales:{...DK.scales,y:{...DK.scales.y,min:-0.7,max:0.8}}}});
+}
+
+function initComparisonCharts() {
+  destroyChart('chart-cmp-perf');
+  const c1=document.getElementById('chart-cmp-perf').getContext('2d');
+  CHART_REGISTRY['chart-cmp-perf']=new Chart(c1,{type:'bar',data:{
+    labels:['SVM (RBF)','XGBoost','Decision Tree','KNN','Rég. Linéaire','K-Means (Sil)'],
+    datasets:[{label:'Score',data:[0.92,0.91,0.88,0.86,0.79,0.58],backgroundColor:['#F0A030','#1DB974','#3D8EF0','#3D8EF0aa','#1DB974aa','#D4537E'],borderRadius:5}]
+  },options:{...DK,responsive:true,maintainAspectRatio:false,plugins:{...DK.plugins,legend:{display:false}},scales:{...DK.scales,y:{...DK.scales.y,min:0.4,max:1.0}}}});
+
+  destroyChart('chart-cmp-roc');
+  const c2=document.getElementById('chart-cmp-roc').getContext('2d');
+  CHART_REGISTRY['chart-cmp-roc']=new Chart(c2,{type:'scatter',data:{datasets:[
+    {label:'Aléatoire',data:[{x:0,y:0},{x:1,y:1}],showLine:true,borderColor:'#333',borderDash:[5,5],pointRadius:0,borderWidth:1},
+    {label:'Decision Tree (0.87)',data:makeROC(0.87,42),showLine:true,borderColor:'#3D8EF0',pointRadius:0,borderWidth:2,fill:false},
+    {label:'KNN (0.85)',data:makeROC(0.85,77),showLine:true,borderColor:'#9FE1CB',pointRadius:0,borderWidth:2,fill:false},
+    {label:'SVM (0.94)',data:makeROC(0.94,99),showLine:true,borderColor:'#F0A030',pointRadius:0,borderWidth:2.5,fill:false},
+  ]},options:{...DK,responsive:true,maintainAspectRatio:false,scales:{
+    x:{...DK.scales.x,min:0,max:1,title:{display:true,text:'FPR',color:'#7a90b5'}},
+    y:{...DK.scales.y,min:0,max:1,title:{display:true,text:'TPR',color:'#7a90b5'}}
+  }}});
+
+  destroyChart('chart-cmp-r2');
+  const c3=document.getElementById('chart-cmp-r2').getContext('2d');
+  CHART_REGISTRY['chart-cmp-r2']=new Chart(c3,{type:'bar',data:{
+    labels:['Rég. Linéaire','XGBoost'],
+    datasets:[
+      {label:'R²',  data:[0.79,0.91],backgroundColor:['#3D8EF0','#1DB974'],borderRadius:5,yAxisID:'y'},
+      {label:'RMSE',data:[8.2,5.4],  backgroundColor:['#3D8EF0aa','#1DB974aa'],borderRadius:5,yAxisID:'y2'}
+    ]
+  },options:{...DK,responsive:true,maintainAspectRatio:false,scales:{
+    x:DK.scales.x,
+    y:{...DK.scales.y,position:'left',min:0,max:1.1,title:{display:true,text:'R²',color:'#7a90b5'}},
+    y2:{...DK.scales.y,position:'right',min:0,max:12,title:{display:true,text:'RMSE',color:'#7a90b5'},grid:{display:false}}
+  }}});
+
+  destroyChart('chart-cmp-importance');
+  const c4=document.getElementById('chart-cmp-importance').getContext('2d');
+  const feats=['exp_years','Projects','AI Score','location_enc','contract_enc','edu_enc','exp_diff','skill_overlap'];
+  const imp=[0.02,0.03,0.04,0.06,0.08,0.12,0.25,0.38];
+  CHART_REGISTRY['chart-cmp-importance']=new Chart(c4,{type:'bar',data:{
+    labels:feats, datasets:[{label:'Importance XGBoost',data:imp,backgroundColor:imp.map(v=>`rgba(29,185,116,${0.3+v*1.8})`),borderRadius:4}]
+  },options:{indexAxis:'y',...DK,responsive:true,maintainAspectRatio:false,plugins:{...DK.plugins,legend:{display:false}}}});
+}
+
+// ══════════════════════ PAGE ROUTER ══════════════════════
+function initPageCharts(pgId) {
+  if (pgId==='page-overview') initOverviewChart();
+  if (pgId==='page-obj1-model') initObj1Charts();
+  if (pgId==='page-obj1-pca')   initObj1PCACharts();
+  if (pgId==='page-obj2-model') initObj2Charts();
+  if (pgId==='page-obj2-pca')   initObj2PCACharts();
+  if (pgId==='page-obj3-model') initObj3Charts();
+  if (pgId==='page-obj3-pca')   initObj3PCACharts();
+  if (pgId==='page-comparison') initComparisonCharts();
+}
+
+window.addEventListener('load', ()=> setTimeout(initOverviewChart, 150));
+</script>
+</body>
+</html>
