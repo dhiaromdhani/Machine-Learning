@@ -38,3 +38,44 @@ Prédire un score continu de compatibilité candidat-offre.
 | Features | 9 |
 
 ##  Feature Engineering
+matching_score = (50 × skill_overlap)
++ (20 × AI_Score / 100)
++ (30 × experience_match_ratio)
+
+experience_match_ratio = max(0, 1 - |exp_diff| / 3)
+skill_overlap = skills_communs / skills_requis
+
+→ Score ∈ [0, 100]
+→ Score ≥ 50 : recommandé pour entretien
+
+
+Règle de décision Good/Poor Match : `skill_overlap > 40%` ET `écart d'expérience < 3 ans`
+
+##  Architecture technique
+
+- Frontend : HTML/CSS/JavaScript vanilla (SPA à onglets, sans framework)
+- Visualisation : Chart.js (bar, line, scatter — courbes ROC, PCA, feature importance, matrices de confusion)
+- Simulation : les prédictions et l'entraînement des modèles sont simulés côté client (formules reproduisant le comportement des modèles entraînés en amont, sans appel backend/API)
+- Sections du dashboard :
+  - Vue d'ensemble (statut des 7 modèles + 3 PCA, performance comparative)
+  - Comparaison des modèles (tableau récapitulatif global, recommandations)
+  - Entraînement (simulation visuelle du pipeline complet)
+  - Pour chaque objectif : modèle & métriques, analyse PCA, formulaire de prédiction interactif
+
+## Utilisation
+
+1. Ouvrir le fichier HTML dans un navigateur
+2. Naviguer entre les 3 objectifs via la sidebar
+3. Onglet "Entraînement" : lancer la simulation du pipeline (7 modèles + 3 PCA)
+4. Onglets "Prédire" : ajuster le profil candidat / l'offre (expérience, AI Score, skills, éducation…) et lancer la prédiction pour voir le verdict, les probabilités et le score de matching
+
+## Recommandations finales
+
+- SVM (RBF) → meilleur AUC-ROC (0.94), robuste en haute dimension → sélection finale
+- XGBoost → meilleur R² (0.91), capture les relations non-linéaires → scoring de matching
+- Decision Tree → règles IF-THEN directement lisibles par les RH → explicabilité
+
+##  Auteurs
+
+Groupe 6 — FullStackers
+Module Machine Learning Appliqué — Dr. Jihen Hlel
